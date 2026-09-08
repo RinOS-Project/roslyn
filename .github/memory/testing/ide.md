@@ -39,8 +39,13 @@ public class MyTests
   `LanguageServerTestComposition.GetSharedExportProvider`. A controllable
   `PartNotDiscoverable` project loader can provide deterministic design-time
   build timing and results without invoking MSBuild.
+- On-demand project-loading integration tests derive from
+  `AbstractLanguageServerMefHost`, materialize valid projects with
+  `MaterializedLspWorkspace`, and use the production LSP services and MSBuild
+  evaluation. Keep this suite focused because composition and restore are
+  comparatively expensive.
 - For some LanguageServer services created via `ILspServiceFactory` (for example,
   `WorkspaceProjectDiscoveryService`), `GetRequiredLspService<T>()` in protocol
   tests may not resolve the concrete service type directly. In these cases,
-  prefer direct unit tests that instantiate the service with lightweight test
-  doubles and validate behavior through test accessors.
+  prefer direct unit tests that instantiate the service and use temporary
+  filesystem state rather than constructor-injected delegates.
