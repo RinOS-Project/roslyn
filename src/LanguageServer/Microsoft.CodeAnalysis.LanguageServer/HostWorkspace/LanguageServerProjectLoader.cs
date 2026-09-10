@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.CodeAnalysis.Collections;
 using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis.LanguageServer.Handler;
+using Microsoft.CodeAnalysis.LanguageServer.Handler.Testing;
 using Microsoft.CodeAnalysis.LanguageServer.HostWorkspace.ProjectTelemetry;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.ProjectSystem;
@@ -30,6 +31,7 @@ internal abstract partial class LanguageServerProjectLoader : IAsyncDisposable
 
     protected readonly LanguageServerWorkspaceFactory _workspaceFactory;
     private readonly ProjectTargetFrameworkManager _projectTargetFrameworkManager;
+    private readonly ProjectCapabilityManager _projectCapabilityManager;
     private readonly IFileChangeWatcher _fileChangeWatcher;
     private readonly IClientLanguageServerManager _clientLanguageServerManager;
     private readonly WorkDoneProgressManager _workDoneProgressManager;
@@ -90,6 +92,7 @@ internal abstract partial class LanguageServerProjectLoader : IAsyncDisposable
     {
         _workspaceFactory = lspServices.GetRequiredService<LanguageServerWorkspaceFactory>();
         _projectTargetFrameworkManager = lspServices.GetRequiredService<ProjectTargetFrameworkManager>();
+        _projectCapabilityManager = lspServices.GetRequiredService<ProjectCapabilityManager>();
         _fileChangeWatcher = lspServices.GetRequiredService<IFileChangeWatcher>();
         _clientLanguageServerManager = lspServices.GetRequiredService<IClientLanguageServerManager>();
         _workDoneProgressManager = lspServices.GetRequiredService<WorkDoneProgressManager>();
@@ -279,6 +282,7 @@ internal abstract partial class LanguageServerProjectLoader : IAsyncDisposable
                 hasAllInformation: remoteProjectLoadResult.HasAllInformation,
                 projectFactory,
                 _projectTargetFrameworkManager,
+                _projectCapabilityManager,
                 _workspaceFactory,
                 _logger,
                 cancellationToken);
@@ -404,6 +408,7 @@ internal abstract partial class LanguageServerProjectLoader : IAsyncDisposable
                     hasAllInformation: true,
                     projectFactory,
                     _projectTargetFrameworkManager,
+                    _projectCapabilityManager,
                     _workspaceFactory,
                     _logger,
                     CancellationToken.None,

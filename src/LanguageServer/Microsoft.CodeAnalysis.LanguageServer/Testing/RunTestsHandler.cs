@@ -25,12 +25,19 @@ internal sealed class RunTestsHandlerFactory(ServerConfiguration serverConfigura
         return new RunTestsHandler(
             new TestDiscoverer(loggerFactory),
             new TestRunner(loggerFactory),
+            new MtpTestRunner(loggerFactory),
+            new MtpProjectDetector(loggerFactory),
             serverConfiguration);
     }
 }
 
 [Method(RunTestsMethodName)]
-internal sealed class RunTestsHandler(TestDiscoverer testDiscoverer, TestRunner testRunner, ServerConfiguration serverConfiguration)
+internal sealed class RunTestsHandler(
+    TestDiscoverer testDiscoverer,
+    TestRunner testRunner,
+    MtpTestRunner mtpTestRunner,
+    MtpProjectDetector mtpProjectDetector,
+    ServerConfiguration serverConfiguration)
     : ILspServiceDocumentRequestHandler<RunTestsParams, RunTestsPartialResult[]>
 {
     private const string RunTestsMethodName = "textDocument/runTests";
@@ -58,6 +65,55 @@ internal sealed class RunTestsHandler(TestDiscoverer testDiscoverer, TestRunner 
         var projectOutputDirectory = Path.GetDirectoryName(projectOutputPath);
         Contract.ThrowIfNull(projectOutputDirectory, $"Could not get project output directory from {projectOutputPath}");
 
+        var runSettingsPath = request.RunSettingsPath;
+        var runSettings = await GetRunSettingsAsync(runSettingsPath, progress, context, cancellationToken);
+        var clientLanguageServerManager = context.GetRequiredLspService<IClientLanguageServerManager>();
+        var projectCapabilityManager = context.GetRequiredService<ProjectCapabilityManager>();
+
+        if (ShouldUseMtp(runSettings, mtpProjectDetector.IsMtpProject(document.Project, projectCapabilityManager)))
+        {
+            await mtpTestRunner.RunTestsAsync(
+                request.Range,
+                document,
+                projectOutputPath,
+                request.AttachDebugger,
+                progress,
+                clientLanguageServerManager,
+                cancellationToken).ConfigureAwait(false);
+
+            return progress.GetValues() ?? [];
+        }
+
+        await RunVsTestAsync(
+            request,
+            document,
+            projectOutputPath,
+            projectOutputDirectory,
+            runSettings,
+            progress,
+            dotnetCliHelper,
+            clientLanguageServerManager,
+            context,
+            cancellationToken).ConfigureAwait(false);
+
+        return progress.GetValues() ?? [];
+    }
+
+    internal static bool ShouldUseMtp(string? runSettings, bool isMtpProject)
+        => runSettings is null && isMtpProject;
+
+    private async Task RunVsTestAsync(
+        RunTestsParams request,
+        Document document,
+        string projectOutputPath,
+        string projectOutputDirectory,
+        string? runSettings,
+        BufferedProgress<RunTestsPartialResult> progress,
+        DotnetCliHelper dotnetCliHelper,
+        IClientLanguageServerManager clientLanguageServerManager,
+        RequestContext context,
+        CancellationToken cancellationToken)
+    {
         // Find the appropriate vstest.console.dll from the SDK.
         var vsTestConsolePath = await dotnetCliHelper.GetVsTestConsolePathAsync(projectOutputDirectory, cancellationToken);
 
@@ -78,16 +134,11 @@ internal sealed class RunTestsHandler(TestDiscoverer testDiscoverer, TestRunner 
             }
         });
 
-        var runSettingsPath = request.RunSettingsPath;
-        var runSettings = await GetRunSettingsAsync(runSettingsPath, progress, context, cancellationToken);
         var testCases = await testDiscoverer.DiscoverTestsAsync(request.Range, document, projectOutputPath, runSettings, progress, vsTestConsoleWrapper, cancellationToken);
         if (!testCases.IsEmpty)
         {
-            var clientLanguageServerManager = context.GetRequiredLspService<IClientLanguageServerManager>();
             await testRunner.RunTestsAsync(testCases, progress, vsTestConsoleWrapper, request.AttachDebugger, runSettings, clientLanguageServerManager, cancellationToken);
         }
-
-        return progress.GetValues() ?? [];
     }
 
     /// <summary>
