@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.LanguageServer.Telemetry;
 using Microsoft.CodeAnalysis.Remote.ProjectSystem;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,21 @@ internal sealed class WorkspaceProjectFactoryService(
     ProjectInitializationHandler projectInitializationHandler,
     ILoggerFactory loggerFactory) : IWorkspaceProjectFactoryService
 {
+    private static readonly ImmutableArray<string> s_supportedBuildSystemProperties =
+    [
+        "SolutionPath",
+        "AssemblyName",
+        "IntermediateAssembly",
+        "MaxSupportedLangVersion",
+        "RootNamespace",
+        "RunAnalyzers",
+        "RunAnalyzersDuringLiveAnalysis",
+        "TargetPath",
+        "TargetRefPath",
+        "CompilerGeneratedFilesOutputPath",
+        "TargetFrameworkIdentifier",
+    ];
+
     private readonly LanguageServerWorkspaceFactory _workspaceFactory = workspaceFactory;
     private readonly ProjectInitializationHandler _projectInitializationHandler = projectInitializationHandler;
     private readonly ILogger _logger = loggerFactory.CreateLogger(nameof(WorkspaceProjectFactoryService));
@@ -61,9 +77,9 @@ internal sealed class WorkspaceProjectFactoryService(
         }
     }
 
-    public async Task<IReadOnlyCollection<string>> GetSupportedBuildSystemPropertiesAsync(CancellationToken _)
+    public Task<IReadOnlyCollection<string>> GetSupportedBuildSystemPropertiesAsync(CancellationToken cancellationToken)
     {
-        // TODO: implement
-        return [];
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult<IReadOnlyCollection<string>>(s_supportedBuildSystemProperties);
     }
 }
