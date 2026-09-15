@@ -34,14 +34,10 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
             options As CompilationOptions,
             hostObjectType As Type) As Compilation Implements ICompilationFactoryService.CreateSubmissionCompilation
 
-#If TODO Then ' https://github.com/dotnet/roslyn/issues/9063
             Return VisualBasicCompilation.CreateScriptCompilation(
                 assemblyName,
                 options:=DirectCast(options, VisualBasicCompilationOptions),
                 globalsType:=hostObjectType)
-#Else
-            Throw New NotImplementedException()
-#End If
         End Function
 
         Public Function GetDefaultCompilationOptions() As CompilationOptions Implements ICompilationFactoryService.GetDefaultCompilationOptions
