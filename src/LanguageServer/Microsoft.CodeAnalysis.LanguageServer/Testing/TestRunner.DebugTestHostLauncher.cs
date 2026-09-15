@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics;
 using Microsoft.CodeAnalysis.LanguageServer.Handler;
 using Microsoft.CodeAnalysis.LanguageServer.Handler.Testing;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -33,14 +34,66 @@ internal sealed partial class TestRunner
 
         public int LaunchTestHost(TestProcessStartInfo defaultTestHostStartInfo)
         {
-            // This is not called anymore in modern client and vstest.console.
-            throw new NotImplementedException();
+            return LaunchTestHost(defaultTestHostStartInfo, CancellationToken.None);
         }
 
         public int LaunchTestHost(TestProcessStartInfo defaultTestHostStartInfo, CancellationToken cancellationToken)
         {
-            // This is not called anymore in modern client and vstest.console.
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            using var process = StartProcess(defaultTestHostStartInfo);
+            if (!AttachDebugger(process.Id, cancellationToken))
+            {
+                TryTerminate(process);
+                return -1;
+            }
+
+            return process.Id;
+        }
+
+        private static Process StartProcess(TestProcessStartInfo startInfo)
+        {
+            var processStartInfo = new ProcessStartInfo
+            {
+                FileName = startInfo.FileName,
+                Arguments = startInfo.Arguments,
+                UseShellExecute = false,
+            };
+
+            if (!string.IsNullOrEmpty(startInfo.WorkingDirectory))
+            {
+                processStartInfo.WorkingDirectory = startInfo.WorkingDirectory;
+            }
+
+            if (startInfo.EnvironmentVariables is not null)
+            {
+                foreach (var (name, value) in startInfo.EnvironmentVariables)
+                {
+                    processStartInfo.Environment[name] = value;
+                }
+            }
+
+            return Process.Start(processStartInfo)
+                ?? throw new InvalidOperationException($"Unable to start test host '{startInfo.FileName}'.");
+        }
+
+        private static void TryTerminate(Process process)
+        {
+            try
+            {
+                if (!process.HasExited)
+                {
+                    process.Kill(entireProcessTree: true);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                // The process exited before cleanup completed.
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // The process may have exited or become inaccessible during cleanup.
+            }
         }
 
         private bool AttachDebugger(int processId, CancellationToken cancellationToken)

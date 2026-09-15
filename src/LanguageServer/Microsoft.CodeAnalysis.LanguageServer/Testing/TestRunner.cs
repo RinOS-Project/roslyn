@@ -36,7 +36,7 @@ internal sealed partial class TestRunner(ILoggerFactory loggerFactory)
         };
         progress.Report(new RunTestsPartialResult(LanguageServerResources.Running_tests, $"{Environment.NewLine}{LanguageServerResources.Starting_test_run}", initialProgress));
 
-        var handler = new TestRunHandler(progress, initialProgress, _logger);
+        var handler = new TestRunHandler(progress, initialProgress, _logger, clientLanguageServerManager);
 
         var runTask = Task.Run(() => RunTests(testCases, progress, vsTestConsoleWrapper, handler, attachDebugger, runSettings, clientLanguageServerManager), cancellationToken);
         cancellationToken.Register(() => vsTestConsoleWrapper.CancelTestRun());

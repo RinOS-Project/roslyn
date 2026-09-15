@@ -4,6 +4,7 @@
 
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Text;
 using Microsoft.CodeAnalysis.LanguageServer.Handler;
 using Microsoft.CodeAnalysis.LanguageServer.Handler.Testing;
@@ -17,11 +18,16 @@ namespace Microsoft.CodeAnalysis.LanguageServer.Testing;
 
 internal sealed partial class TestRunner
 {
-    private sealed class TestRunHandler(BufferedProgress<RunTestsPartialResult> progress, TestProgress initialProgress, ILogger logger) : ITestRunEventsHandler
+    private sealed class TestRunHandler(
+        BufferedProgress<RunTestsPartialResult> progress,
+        TestProgress initialProgress,
+        ILogger logger,
+        IClientLanguageServerManager clientLanguageServerManager) : ITestRunEventsHandler
     {
         private readonly ILogger _logger = logger;
         private readonly BufferedProgress<RunTestsPartialResult> _progress = progress;
         private readonly TestProgress _initialProgress = initialProgress;
+        private readonly IClientLanguageServerManager _clientLanguageServerManager = clientLanguageServerManager;
 
         private bool _isComplete = false;
 
@@ -90,9 +96,80 @@ internal sealed partial class TestRunner
 
         public int LaunchProcessWithDebuggerAttached(TestProcessStartInfo testProcessStartInfo)
         {
-            // TODO - implement debug tests.
-            // https://devdiv.visualstudio.com/DevDiv/_workitems/edit/1799066/
-            throw new NotImplementedException();
+            var process = StartProcess(testProcessStartInfo);
+            var processId = process.Id;
+
+            try
+            {
+                var request = new DebugAttachParams(processId);
+                var result = Task.Run(
+                    async () => await _clientLanguageServerManager.SendRequestAsync<DebugAttachParams, DebugAttachResult>(
+                        "workspace/attachDebugger", request, CancellationToken.None),
+                    CancellationToken.None).GetAwaiter().GetResult();
+
+                if (result.DidAttach)
+                {
+                    return processId;
+                }
+
+                _logger.LogError("The client did not attach a debugger to test process {processId}.", processId);
+                TryTerminate(process);
+                return -1;
+            }
+            catch
+            {
+                TryTerminate(process);
+                throw;
+            }
+            finally
+            {
+                process.Dispose();
+            }
+        }
+
+        private static Process StartProcess(TestProcessStartInfo startInfo)
+        {
+            var processStartInfo = new ProcessStartInfo
+            {
+                FileName = startInfo.FileName,
+                Arguments = startInfo.Arguments,
+                UseShellExecute = false,
+            };
+
+            if (!string.IsNullOrEmpty(startInfo.WorkingDirectory))
+            {
+                processStartInfo.WorkingDirectory = startInfo.WorkingDirectory;
+            }
+
+            if (startInfo.EnvironmentVariables is not null)
+            {
+                foreach (var (name, value) in startInfo.EnvironmentVariables)
+                {
+                    processStartInfo.Environment[name] = value;
+                }
+            }
+
+            return Process.Start(processStartInfo)
+                ?? throw new InvalidOperationException($"Unable to start test process '{startInfo.FileName}'.");
+        }
+
+        private static void TryTerminate(Process process)
+        {
+            try
+            {
+                if (!process.HasExited)
+                {
+                    process.Kill(entireProcessTree: true);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                // The process exited while the client attach request was in flight.
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // The process may have exited or become inaccessible during cleanup.
+            }
         }
 
         private TestProgress? CreateReport(ITestRunStatistics? testRunStatistics)
