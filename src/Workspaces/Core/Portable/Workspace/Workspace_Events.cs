@@ -161,7 +161,7 @@ public abstract partial class Workspace
 
     [Obsolete("This member is obsolete. Use the RaiseDocumentActiveContextChangedEventAsync(SourceTextContainer, DocumentId, DocumentId) overload instead.", error: true)]
     protected Task RaiseDocumentActiveContextChangedEventAsync(Document document)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Use the SourceTextContainer/DocumentId overload for active-context changes.");
 
     protected Task RaiseDocumentActiveContextChangedEventAsync(SourceTextContainer sourceTextContainer, DocumentId oldActiveContextDocumentId, DocumentId newActiveContextDocumentId)
     {
