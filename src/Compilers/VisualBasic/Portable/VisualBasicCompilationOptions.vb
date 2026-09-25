@@ -332,6 +332,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                 referencesSupersedeLowerVersions:=other.ReferencesSupersedeLowerVersions,
                 publicSign:=other.PublicSign,
                 ignoreCorLibraryDuplicatedTypes:=other.IgnoreCorLibraryDuplicatedTypes)
+
+            Features = other.Features
         End Sub
 
         Public Overrides ReadOnly Property Language As String
@@ -830,7 +832,9 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
 
         <Obsolete>
         Protected Overrides Function CommonWithFeatures(features As ImmutableArray(Of String)) As CompilationOptions
-            Throw New NotImplementedException()
+            Dim result = New VisualBasicCompilationOptions(Me)
+            result.Features = features
+            Return result
         End Function
 
         ''' <summary>
