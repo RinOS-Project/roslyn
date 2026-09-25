@@ -256,7 +256,7 @@ Friend Class GrammarGenerator
             End If
         End If
 
-        Throw New NotImplementedException()
+        Throw New InvalidOperationException()
     End Function
 
     Private Function GetMappedKinds(structureNode As ParseNodeStructure,
