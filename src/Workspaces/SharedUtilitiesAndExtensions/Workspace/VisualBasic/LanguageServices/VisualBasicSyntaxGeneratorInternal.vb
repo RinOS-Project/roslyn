@@ -482,55 +482,55 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.CodeGeneration
         End Function
 
         Public Overrides Function IsPatternExpression(expression As SyntaxNode, isToken As SyntaxToken, pattern As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function AndPattern(left As SyntaxNode, right As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function ConstantPattern(expression As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function DeclarationPattern(type As INamedTypeSymbol, name As String) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function LessThanRelationalPattern(expression As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function LessThanEqualsRelationalPattern(expression As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function GreaterThanRelationalPattern(expression As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function GreaterThanEqualsRelationalPattern(expression As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function NotPattern(pattern As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function OrPattern(left As SyntaxNode, right As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function ParenthesizedPattern(pattern As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function TypePattern(type As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
         Public Overrides Function UnaryPattern(operatorToken As SyntaxToken, pattern As SyntaxNode) As SyntaxNode
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic pattern syntax is not supported.")
         End Function
 
 #End Region
