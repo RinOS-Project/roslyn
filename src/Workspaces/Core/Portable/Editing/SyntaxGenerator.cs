@@ -261,7 +261,7 @@ public abstract class SyntaxGenerator : ILanguageService
         DeclarationModifiers modifiers = default,
         IEnumerable<SyntaxNode>? statements = null)
     {
-        throw new NotImplementedException();
+        throw new NotSupportedException("Operator declarations require a language-specific SyntaxGenerator implementation.");
     }
 
     private protected abstract SyntaxNode OperatorDeclaration(

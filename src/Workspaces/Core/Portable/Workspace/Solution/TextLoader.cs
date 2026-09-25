@@ -68,7 +68,7 @@ public abstract class TextLoader
         }
 #pragma warning restore
 
-        throw new NotImplementedException($"{GetType()} must override {nameof(LoadTextAndVersionAsync)}");
+        throw new NotSupportedException($"{GetType()} must override {nameof(LoadTextAndVersionAsync)}");
     }
 
     /// <summary>
