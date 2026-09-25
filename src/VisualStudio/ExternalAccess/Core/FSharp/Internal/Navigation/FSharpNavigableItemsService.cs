@@ -28,7 +28,5 @@ internal class FSharpNavigableItemsService([Import(AllowDefault = true)] IFSharp
     }
 
     public Task<ImmutableArray<INavigableItem>> GetNavigableItemsAsync(Document document, int position, bool forSymbolType, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
+        => GetNavigableItemsAsync(document, position, cancellationToken);
 }
