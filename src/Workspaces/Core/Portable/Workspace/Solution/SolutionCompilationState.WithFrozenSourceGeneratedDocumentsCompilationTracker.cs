@@ -226,7 +226,7 @@ internal sealed partial class SolutionCompilationState
         {
             // The provided run result would be out of sync with the replaced documents.
             // Currently this is only used by razor to get the HostOutputs, which should never be used here.
-            throw new NotImplementedException();
+            return ValueTask.FromResult<GeneratorDriverRunResult?>(null);
         }
 
         public SkeletonReferenceCache GetClonedSkeletonReferenceCache()

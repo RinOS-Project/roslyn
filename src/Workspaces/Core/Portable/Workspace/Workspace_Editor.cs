@@ -630,7 +630,8 @@ public abstract partial class Workspace
     /// <param name="documentId"></param>
     internal virtual ValueTask TryOnDocumentClosedAsync(DocumentId documentId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        // A workspace that does not own the document can safely ignore this optional transition.
+        return ValueTask.CompletedTask;
     }
 
 #pragma warning disable IDE0060 // Remove unused parameter 'updateActiveContext' - shipped public API.
