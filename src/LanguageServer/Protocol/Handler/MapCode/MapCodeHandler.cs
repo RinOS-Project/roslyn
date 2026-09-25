@@ -176,7 +176,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                         }
                         else
                         {
-                            solution = ApplyResourceOperation(solution, documentChange.Value);
+                            solution = await ApplyResourceOperation(solution, documentChange.Value).ConfigureAwait(false);
                         }
                     }
                 }
@@ -253,7 +253,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                 return currentSolution;
             }
 
-            Solution ApplyResourceOperation(Solution currentSolution, object resourceOperation)
+            async Task<Solution> ApplyResourceOperation(Solution currentSolution, object resourceOperation)
             {
                 if (resourceOperation is not IAnnotatedChange annotatedChange)
                     throw new InvalidOperationException("mapCode workspace update contained an unknown resource operation.");
@@ -282,7 +282,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                 return resourceOperation switch
                 {
                     CreateFile createFile => ApplyCreateFile(currentSolution, createFile),
-                    RenameFile renameFile => ApplyRenameFile(currentSolution, renameFile),
+                    RenameFile renameFile => await ApplyRenameFileAsync(currentSolution, renameFile).ConfigureAwait(false),
                     DeleteFile deleteFile => ApplyDeleteFile(currentSolution, deleteFile),
                     _ => throw new InvalidOperationException("mapCode workspace update contained an unknown resource operation."),
                 };
@@ -325,7 +325,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                     filePath);
             }
 
-            static Solution ApplyRenameFile(Solution currentSolution, RenameFile renameFile)
+            async Task<Solution> ApplyRenameFileAsync(Solution currentSolution, RenameFile renameFile)
             {
                 if (renameFile.OldDocumentUri.Equals(renameFile.NewDocumentUri))
                     return currentSolution;
@@ -359,18 +359,59 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                 if (string.IsNullOrEmpty(newName))
                     throw new ArgumentException($"mapCode rename file target has no file name: {renameFile.NewDocumentUri}");
 
+                using var _ = ArrayBuilder<(DocumentId Id, string Name, string[] Folders, string? FilePath, SourceText Text, bool IsAdditional, bool IsAnalyzerConfig)>.GetInstance(out var nonRegularDocuments);
+                using var __ = ArrayBuilder<DocumentId>.GetInstance(out var nonRegularDocumentIds);
                 foreach (var documentId in oldDocumentIds)
                 {
-                    if (currentSolution.GetDocument(documentId) is not { } document)
+                    if (currentSolution.GetDocument(documentId) is { } document)
                     {
-                        throw new NotSupportedException(
-                            "mapCode rename file currently supports regular documents only; additional and analyzer-config documents cannot be renamed in Solution.");
+                        currentSolution = currentSolution
+                            .WithDocumentName(documentId, newName)
+                            .WithDocumentFolders(documentId, GetFolders(document.Project, newFilePath))
+                            .WithDocumentFilePath(documentId, newFilePath);
+                        continue;
                     }
 
-                    currentSolution = currentSolution
-                        .WithDocumentName(documentId, newName)
-                        .WithDocumentFolders(documentId, GetFolders(document.Project, newFilePath))
-                        .WithDocumentFilePath(documentId, newFilePath);
+                    if (currentSolution.GetAdditionalDocument(documentId) is { } additionalDocument)
+                    {
+                        nonRegularDocuments.Add((
+                            documentId,
+                            newName,
+                            GetFolders(additionalDocument.Project, newFilePath),
+                            newFilePath,
+                            await additionalDocument.GetTextAsync(cancellationToken).ConfigureAwait(false),
+                            IsAdditional: true,
+                            IsAnalyzerConfig: false));
+                        nonRegularDocumentIds.Add(documentId);
+                        continue;
+                    }
+
+                    if (currentSolution.GetAnalyzerConfigDocument(documentId) is { } analyzerConfigDocument)
+                    {
+                        nonRegularDocuments.Add((
+                            documentId,
+                            newName,
+                            GetFolders(analyzerConfigDocument.Project, newFilePath),
+                            newFilePath,
+                            await analyzerConfigDocument.GetTextAsync(cancellationToken).ConfigureAwait(false),
+                            IsAdditional: false,
+                            IsAnalyzerConfig: true));
+                        nonRegularDocumentIds.Add(documentId);
+                        continue;
+                    }
+
+                    throw new InvalidOperationException($"mapCode rename file source has an unknown document kind: {documentId}");
+                }
+
+                if (nonRegularDocumentIds.Count > 0)
+                {
+                    currentSolution = RemoveTextDocuments(currentSolution, nonRegularDocumentIds.ToImmutable());
+                    foreach (var document in nonRegularDocuments)
+                    {
+                        currentSolution = document.IsAdditional
+                            ? currentSolution.AddAdditionalDocument(document.Id, document.Name, document.Text, document.Folders, document.FilePath)
+                            : currentSolution.AddAnalyzerConfigDocument(document.Id, document.Name, document.Text, document.Folders, document.FilePath);
+                    }
                 }
 
                 return currentSolution;
