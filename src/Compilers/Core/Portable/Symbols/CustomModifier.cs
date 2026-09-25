@@ -4,6 +4,7 @@
 
 using System;
 using Microsoft.CodeAnalysis.Emit;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis
 {
@@ -32,7 +33,7 @@ namespace Microsoft.CodeAnalysis
 
         Cci.ITypeReference Cci.ICustomModifier.GetModifier(EmitContext context)
         {
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
         #endregion
     }
