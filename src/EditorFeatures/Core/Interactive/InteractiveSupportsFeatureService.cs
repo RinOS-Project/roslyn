@@ -4,9 +4,12 @@
 
 using System;
 using System.Composition;
+using System.Threading;
 using Microsoft.CodeAnalysis.Editor.Shared;
+using Microsoft.CodeAnalysis.Editor.Shared.Extensions;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Shared;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.VisualStudio.InteractiveWindow;
 using Microsoft.VisualStudio.Text;
 
@@ -63,8 +66,9 @@ internal sealed class InteractiveSupportsFeatureService
 
         public bool SupportsCodeFixes(Document document)
         {
-            // TODO: Implement this.
-            return false;
+            var sourceText = document.GetTextSynchronously(CancellationToken.None);
+            var textBuffer = sourceText.Container.TryGetTextBuffer();
+            return textBuffer is not null && textBuffer.SupportsCodeFixes();
         }
 
         public bool SupportsRefactorings(Document document)
