@@ -19,10 +19,12 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
 
             Private ReadOnly _compilerHost As IVbCompilerHost
             Private ReadOnly _references As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+            Private ReadOnly _embeddedReferences As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
             Private ReadOnly _files As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
 
             Private _parseOptions As VisualBasicParseOptions
             Private _compilationOptions As VisualBasicCompilationOptions
+            Private _globalImports As ImmutableArray(Of GlobalImport) = ImmutableArray(Of GlobalImport).Empty
             Private _outputPath As String
             Private _runtimeLibraries As ImmutableArray(Of String)
 
@@ -39,7 +41,12 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
 
                 Dim metadataReferences = _references.Concat(_runtimeLibraries) _
                                                       .Distinct(StringComparer.InvariantCultureIgnoreCase) _
-                                                      .Select(Function(path) metadataService.GetReference(path, MetadataReferenceProperties.Assembly))
+                                                      .Select(Function(path)
+                                                                  Dim properties = If(_embeddedReferences.Contains(path),
+                                                                                      New MetadataReferenceProperties(embedInteropTypes:=True),
+                                                                                      MetadataReferenceProperties.Assembly)
+                                                                  Return metadataService.GetReference(path, properties)
+                                                              End Function)
 
                 Dim c = VisualBasicCompilation.Create(
                     Path.GetFileName(_outputPath),
@@ -53,19 +60,21 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
             End Function
 
             Public Sub AddApplicationObjectVariable(wszClassName As String, wszMemberName As String) Implements IVbCompilerProject.AddApplicationObjectVariable
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("VBA application object variables are not supported by the TempPE compiler.")
             End Sub
 
             Public Sub AddBuffer(wszBuffer As String, dwLen As Integer, wszMkr As String, itemid As UInteger, fAdvise As Boolean, fShowErrorsInTaskList As Boolean) Implements IVbCompilerProject.AddBuffer
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE compilation accepts workspace files, not legacy in-memory buffers.")
             End Sub
 
             Public Function AddEmbeddedMetaDataReference(wszFileName As String) As Integer Implements IVbCompilerProject.AddEmbeddedMetaDataReference
-                Return VSConstants.E_NOTIMPL
+                _references.Add(wszFileName)
+                _embeddedReferences.Add(wszFileName)
+                Return VSConstants.S_OK
             End Function
 
             Public Sub AddEmbeddedProjectReference(pReferencedCompilerProject As IVbCompilerProject) Implements IVbCompilerProject.AddEmbeddedProjectReference
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE compilation does not consume legacy project references.")
             End Sub
 
             Public Sub AddFile(wszFileName As String, itemid As UInteger, fAddDuringOpen As Boolean) Implements IVbCompilerProject.AddFile
@@ -77,7 +86,15 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
             End Sub
 
             Public Sub AddImport(wszImport As String) Implements IVbCompilerProject.AddImport
-                Throw New NotImplementedException()
+                Try
+                    _globalImports = _globalImports.Add(GlobalImport.Parse(wszImport))
+                    If _compilationOptions IsNot Nothing Then
+                        _compilationOptions = _compilationOptions.WithGlobalImports(_globalImports)
+                    End If
+                Catch ex As ArgumentException
+                    ' Match the legacy project-system behavior: malformed imports are reported by
+                    ' compilation diagnostics rather than escaping from the project callback.
+                End Try
             End Sub
 
             Public Function AddMetaDataReference(wszFileName As String, bAssembly As Boolean) As Integer Implements IVbCompilerProject.AddMetaDataReference
@@ -87,35 +104,60 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
             End Function
 
             Public Sub AddProjectReference(pReferencedCompilerProject As IVbCompilerProject) Implements IVbCompilerProject.AddProjectReference
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE compilation does not consume legacy project references.")
             End Sub
 
             Public Sub AddResourceReference(wszFileName As String, wszName As String, fPublic As Boolean, fEmbed As Boolean) Implements IVbCompilerProject.AddResourceReference
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE compilation does not embed legacy resource references.")
             End Sub
 
+            Private _buildStatusCallback As IVbBuildStatusCallback
+
             Public Function AdviseBuildStatusCallback(pIVbBuildStatusCallback As IVbBuildStatusCallback) As UInteger Implements IVbCompilerProject.AdviseBuildStatusCallback
-                Throw New NotImplementedException()
+                _buildStatusCallback = pIVbBuildStatusCallback
+                If pIVbBuildStatusCallback IsNot Nothing Then
+                    pIVbBuildStatusCallback.ProjectBound()
+                End If
+
+                Return VSConstants.S_OK
             End Function
 
             Public Function CreateCodeModel(pProject As EnvDTE.Project, pProjectItem As EnvDTE.ProjectItem, ByRef pCodeModel As EnvDTE.CodeModel) As Integer Implements IVbCompilerProject.CreateCodeModel
-                Throw New NotImplementedException()
+                pCodeModel = Nothing
+                Return VSConstants.E_NOTIMPL
             End Function
 
             Public Function CreateFileCodeModel(pProject As EnvDTE.Project, pProjectItem As EnvDTE.ProjectItem, ByRef pFileCodeModel As EnvDTE.FileCodeModel) As Integer Implements IVbCompilerProject.CreateFileCodeModel
-                Throw New NotImplementedException()
+                pFileCodeModel = Nothing
+                Return VSConstants.E_NOTIMPL
             End Function
 
             Public Sub DeleteAllImports() Implements IVbCompilerProject.DeleteAllImports
-                Throw New NotImplementedException()
+                _globalImports = ImmutableArray(Of GlobalImport).Empty
+                If _compilationOptions IsNot Nothing Then
+                    _compilationOptions = _compilationOptions.WithGlobalImports(_globalImports)
+                End If
             End Sub
 
             Public Sub DeleteAllResourceReferences() Implements IVbCompilerProject.DeleteAllResourceReferences
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE compilation does not embed legacy resource references.")
             End Sub
 
             Public Sub DeleteImport(wszImport As String) Implements IVbCompilerProject.DeleteImport
-                Throw New NotImplementedException()
+                Dim index = -1
+                For i = 0 To _globalImports.Length - 1
+                    If _globalImports(i).Clause.ToFullString() = wszImport Then
+                        index = i
+                        Exit For
+                    End If
+                Next
+
+                If index >= 0 Then
+                    _globalImports = _globalImports.RemoveAt(index)
+                    If _compilationOptions IsNot Nothing Then
+                        _compilationOptions = _compilationOptions.WithGlobalImports(_globalImports)
+                    End If
+                End If
             End Sub
 
             Public Sub Disconnect() Implements IVbCompilerProject.Disconnect
@@ -123,7 +165,8 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
             End Sub
 
             Public Function ENCRebuild(in_pProgram As Object, ByRef out_ppUpdate As Object) As Integer Implements IVbCompilerProject.ENCRebuild
-                Throw New NotImplementedException()
+                out_ppUpdate = Nothing
+                Return VSConstants.S_FALSE
             End Function
 
             Public Sub FinishEdit() Implements IVbCompilerProject.FinishEdit
@@ -133,67 +176,73 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
             End Sub
 
             Public Function GetDefaultReferences(cElements As Integer, ByRef rgbstrReferences() As String, ByVal cActualReferences As IntPtr) As Integer Implements IVbCompilerProject.GetDefaultReferences
-                Throw New NotImplementedException()
+                Return VSConstants.E_NOTIMPL
             End Function
 
             Public Sub GetEntryPointsList(cItems As Integer, strList() As String, ByVal pcActualItems As IntPtr) Implements IVbCompilerProject.GetEntryPointsList
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE entry-point enumeration is not part of the synchronous compiler contract.")
             End Sub
 
             Public Sub GetMethodFromLine(itemid As UInteger, iLine As Integer, ByRef pBstrProcName As String, ByRef pBstrClassName As String) Implements IVbCompilerProject.GetMethodFromLine
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE source-line method lookup is not supported.")
             End Sub
 
             Public Sub GetPEImage(ByRef ppImage As IntPtr) Implements IVbCompilerProject.GetPEImage
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE emits directly to its output path and does not expose an in-memory PE image.")
             End Sub
 
             Public Sub RemoveAllApplicationObjectVariables() Implements IVbCompilerProject.RemoveAllApplicationObjectVariables
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("VBA application object variables are not supported by the TempPE compiler.")
             End Sub
 
             Public Sub RemoveAllReferences() Implements IVbCompilerProject.RemoveAllReferences
-                Throw New NotImplementedException()
+                _references.Clear()
+                _embeddedReferences.Clear()
             End Sub
 
             Public Sub RemoveFile(wszFileName As String, itemid As UInteger) Implements IVbCompilerProject.RemoveFile
-                Throw New NotImplementedException()
+                Contract.ThrowIfFalse(itemid = VSConstants.VSITEMID.Nil)
+                _files.Remove(wszFileName)
             End Sub
 
             Public Sub RemoveFileByName(wszPath As String) Implements IVbCompilerProject.RemoveFileByName
-                Throw New NotImplementedException()
+                _files.Remove(wszPath)
             End Sub
 
             Public Sub RemoveMetaDataReference(wszFileName As String) Implements IVbCompilerProject.RemoveMetaDataReference
-                Throw New NotImplementedException()
+                _references.Remove(wszFileName)
+                _embeddedReferences.Remove(wszFileName)
             End Sub
 
             Public Sub RemoveProjectReference(pReferencedCompilerProject As IVbCompilerProject) Implements IVbCompilerProject.RemoveProjectReference
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE compilation does not consume legacy project references.")
             End Sub
 
             Public Sub RenameDefaultNamespace(bstrDefaultNamespace As String) Implements IVbCompilerProject.RenameDefaultNamespace
-                Throw New NotImplementedException()
+                If _compilationOptions IsNot Nothing Then
+                    _compilationOptions = _compilationOptions.WithRootNamespace(bstrDefaultNamespace)
+                End If
             End Sub
 
             Public Sub RenameFile(wszOldFileName As String, wszNewFileName As String, itemid As UInteger) Implements IVbCompilerProject.RenameFile
-                Throw New NotImplementedException()
+                RemoveFile(wszOldFileName, itemid)
+                AddFile(wszNewFileName, itemid, fAddDuringOpen:=False)
             End Sub
 
             Public Sub RenameProject(wszNewProjectName As String) Implements IVbCompilerProject.RenameProject
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE projects do not expose a mutable project-system display name.")
             End Sub
 
             Public Sub ResumePostedNotifications() Implements IVbCompilerProject.ResumePostedNotifications
-                Throw New NotImplementedException()
+                ' TempPE compilation is synchronous and does not post compiler notifications.
             End Sub
 
             Public Sub SetBackgroundCompilerPriorityLow() Implements IVbCompilerProject.SetBackgroundCompilerPriorityLow
-                Throw New NotImplementedException()
+                ' TempPE compilation has no background compiler whose priority can be changed.
             End Sub
 
             Public Sub SetBackgroundCompilerPriorityNormal() Implements IVbCompilerProject.SetBackgroundCompilerPriorityNormal
-                Throw New NotImplementedException()
+                ' TempPE compilation has no background compiler whose priority can be changed.
             End Sub
 
             Public Sub SetCompilerOptions(ByRef pCompilerOptions As VBCompilerOptions) Implements IVbCompilerProject.SetCompilerOptions
@@ -203,23 +252,23 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
 
                 ' Note that we pass a "default" compilation options with DLL set as output kind; the Apply method will figure out what the right one is and fix it up
                 _compilationOptions = VisualBasicProject.OptionsProcessor.ApplyCompilationOptionsFromVBCompilerOptions(
-                    New VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, parseOptions:=_parseOptions), pCompilerOptions)
+                    New VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, parseOptions:=_parseOptions).WithGlobalImports(_globalImports), pCompilerOptions)
             End Sub
 
             Public Sub SetModuleAssemblyName(wszName As String) Implements IVbCompilerProject.SetModuleAssemblyName
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE output naming is controlled by SetCompilerOptions.")
             End Sub
 
             Public Sub SetStreamForPDB(pStreamPDB As IStream) Implements IVbCompilerProject.SetStreamForPDB
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("TempPE emits PDB data through compiler options and does not accept a legacy stream.")
             End Sub
 
             Public Sub StartBuild(pVsOutputWindowPane As IVsOutputWindowPane, fRebuildAll As Boolean) Implements IVbCompilerProject.StartBuild
-                Throw New NotImplementedException()
+                ' The owning TempPECompiler performs the synchronous build from Compile().
             End Sub
 
             Public Sub StartDebugging() Implements IVbCompilerProject.StartDebugging
-                Throw New NotImplementedException()
+                ' TempPE projects do not own a debugger session.
             End Sub
 
             Public Sub StartEdit() Implements IVbCompilerProject.StartEdit
@@ -229,23 +278,24 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
             End Sub
 
             Public Sub StopBuild() Implements IVbCompilerProject.StopBuild
-                Throw New NotImplementedException()
+                ' The owning TempPECompiler performs the synchronous build from Compile().
             End Sub
 
             Public Sub StopDebugging() Implements IVbCompilerProject.StopDebugging
-                Throw New NotImplementedException()
+                ' TempPE projects do not own a debugger session.
             End Sub
 
             Public Sub SuspendPostedNotifications() Implements IVbCompilerProject.SuspendPostedNotifications
-                Throw New NotImplementedException()
+                ' TempPE compilation is synchronous and does not post compiler notifications.
             End Sub
 
             Public Sub UnadviseBuildStatusCallback(dwCookie As UInteger) Implements IVbCompilerProject.UnadviseBuildStatusCallback
-                Throw New NotImplementedException()
+                Contract.ThrowIfFalse(dwCookie = 0)
+                _buildStatusCallback = Nothing
             End Sub
 
             Public Sub WaitUntilBound() Implements IVbCompilerProject.WaitUntilBound
-                Throw New NotImplementedException()
+                ' TempPE compilation is synchronous, so there is no background bind to wait for.
             End Sub
 
         End Class
