@@ -46,7 +46,7 @@ internal abstract class NavigationBarItem(
     protected int GetHashCodeCore()
     {
         var hashCode = Hash.CombineValues(ChildItems);
-        hashCode = Hash.CombineValues(Spans, hashCode);
+        hashCode = Hash.Combine(Hash.CombineValues(Spans), hashCode);
         hashCode = Hash.Combine(Indent, hashCode);
         hashCode = Hash.Combine(Grayed, hashCode);
         hashCode = Hash.Combine(Bolded, hashCode);
