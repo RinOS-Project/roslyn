@@ -37,7 +37,7 @@ internal partial class ITypeSymbolExtensions
             => nameOnly ? NameOnlyInstance : NotNameOnlyInstance;
 
         public override TypeSyntax DefaultVisit(ISymbol node)
-            => throw new NotImplementedException();
+            => throw ExceptionUtilities.UnexpectedValue(node.Kind);
 
         private static TTypeSyntax AddInformationTo<TTypeSyntax>(TTypeSyntax syntax, ISymbol symbol)
             where TTypeSyntax : TypeSyntax

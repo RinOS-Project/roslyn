@@ -85,7 +85,7 @@ internal sealed class CodeGenerationTypeParameterSymbol(
         }
     }
 
-    public NullableAnnotation ReferenceTypeConstraintNullableAnnotation => throw new System.NotImplementedException();
+    public NullableAnnotation ReferenceTypeConstraintNullableAnnotation => NullableAnnotation.None;
 
     public ImmutableArray<NullableAnnotation> ConstraintNullableAnnotations => ConstraintTypes.SelectAsArray(t => t.NullableAnnotation);
 }

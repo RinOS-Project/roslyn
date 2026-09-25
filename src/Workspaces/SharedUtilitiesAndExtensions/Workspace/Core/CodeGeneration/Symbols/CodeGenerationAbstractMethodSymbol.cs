@@ -119,5 +119,5 @@ internal abstract class CodeGenerationAbstractMethodSymbol : CodeGenerationSymbo
         => null;
 
     public IMethodSymbol ReduceExtensionMember(ITypeSymbol receiverType)
-        => throw new System.NotImplementedException();
+        => null;
 }
