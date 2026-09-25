@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Editor.Implementation.NavigationBar;
 
@@ -20,5 +21,5 @@ internal sealed class NavigationBarModel(INavigationBarItemService itemService, 
         => other != null && Types.SequenceEqual(other.Types);
 
     public override int GetHashCode()
-        => throw new NotImplementedException();
+        => Hash.CombineValues(Types);
 }

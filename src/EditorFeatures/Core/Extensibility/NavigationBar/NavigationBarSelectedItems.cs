@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Editor;
 
@@ -35,5 +36,7 @@ internal sealed class NavigationBarSelectedTypeAndMember(
            Equals(this.MemberItem, other.MemberItem);
 
     public override int GetHashCode()
-        => throw new NotImplementedException();
+        => Hash.Combine(ShowMemberItemGrayed,
+            Hash.Combine(MemberItem,
+                Hash.Combine(ShowTypeItemGrayed, TypeItem)));
 }

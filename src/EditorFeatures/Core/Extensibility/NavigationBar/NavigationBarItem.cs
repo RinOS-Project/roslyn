@@ -43,6 +43,17 @@ internal abstract class NavigationBarItem(
     public abstract override bool Equals(object? obj);
     public abstract override int GetHashCode();
 
+    protected int GetHashCodeCore()
+    {
+        var hashCode = Hash.CombineValues(ChildItems);
+        hashCode = Hash.CombineValues(Spans, hashCode);
+        hashCode = Hash.Combine(Indent, hashCode);
+        hashCode = Hash.Combine(Grayed, hashCode);
+        hashCode = Hash.Combine(Bolded, hashCode);
+        hashCode = Hash.Combine((int)Glyph, hashCode);
+        return Hash.Combine(Text, hashCode);
+    }
+
     public bool Equals(NavigationBarItem? other)
     {
         return other != null &&

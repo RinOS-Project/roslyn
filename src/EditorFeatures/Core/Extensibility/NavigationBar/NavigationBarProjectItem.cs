@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Editor;
 
@@ -39,5 +40,5 @@ internal sealed class NavigationBarProjectItem(
            Language == item.Language;
 
     public override int GetHashCode()
-        => throw new NotImplementedException();
+        => Hash.Combine(Language, Hash.Combine(DocumentId, Hash.Combine(Workspace, GetHashCodeCore())));
 }

@@ -71,5 +71,5 @@ internal sealed class WrappedNavigationBarItem : NavigationBarItem, IEquatable<W
            UnderlyingItem.Equals(other.UnderlyingItem);
 
     public override int GetHashCode()
-        => throw new NotImplementedException();
+        => Hash.Combine(UnderlyingItem.GetHashCode(), GetHashCodeCore());
 }

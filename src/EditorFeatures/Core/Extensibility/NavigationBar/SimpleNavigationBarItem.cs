@@ -18,5 +18,5 @@ internal sealed class SimpleNavigationBarItem(ITextVersion textVersion, string t
         => base.Equals(other);
 
     public override int GetHashCode()
-        => throw new NotImplementedException();
+        => GetHashCodeCore();
 }
