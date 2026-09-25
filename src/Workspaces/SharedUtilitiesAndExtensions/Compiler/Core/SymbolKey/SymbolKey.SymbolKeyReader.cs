@@ -531,7 +531,7 @@ internal partial struct SymbolKey
                 SymbolKeyType.TupleType => TupleTypeSymbolKey.Instance.Resolve(this, out failureReason),
                 SymbolKeyType.TypeParameter => TypeParameterSymbolKey.Instance.Resolve(this, out failureReason),
                 SymbolKeyType.TypeParameterOrdinal => TypeParameterOrdinalSymbolKey.Resolve(this, out failureReason),
-                _ => throw new NotImplementedException(),
+                _ => throw ExceptionUtilities.UnexpectedValue(type),
             };
 
         private PooledArrayBuilder<SymbolKeyResolution> ReadSymbolKeyArray<TContextualSymbol>(

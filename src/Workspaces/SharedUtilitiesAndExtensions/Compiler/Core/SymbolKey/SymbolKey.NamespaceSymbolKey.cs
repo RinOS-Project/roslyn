@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis;
 
@@ -49,7 +50,7 @@ internal partial struct SymbolKey
                         visitor.WriteSymbolKey(null);
                         break;
                     default:
-                        throw new NotImplementedException();
+                        throw ExceptionUtilities.UnexpectedValue(symbol.NamespaceKind);
                 }
             }
         }

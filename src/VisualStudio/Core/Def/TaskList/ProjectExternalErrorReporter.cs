@@ -209,13 +209,13 @@ internal sealed class ProjectExternalErrorReporter(
                 FatalError.ReportAndCatch(new Exception("errorId is null"));
             }
 
-            throw new NotImplementedException();
+            throw new NotSupportedException("External errors without an error id are not supported.");
         }
 
         if (!bstrErrorId.StartsWith(_errorCodePrefix) &&
             DiagnosticProvider.IsUnsupportedDiagnosticId(_projectId, bstrErrorId))
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException($"External diagnostic id '{bstrErrorId}' is not supported by this project.");
         }
 
         if ((iEndLine >= 0 && iEndColumn >= 0) &&

@@ -18,5 +18,5 @@ internal sealed class OnTheFlyDocsViewStateVisibilityConverter : IValueConverter
         => value is OnTheFlyDocsState state && parameter is OnTheFlyDocsState targetState && state == targetState ? Visibility.Visible : Visibility.Collapsed;
 
     public object ConvertBack(object value, System.Type targetType, object parameter, CultureInfo culture)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException();
 }

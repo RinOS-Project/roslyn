@@ -65,6 +65,6 @@ internal sealed partial class RenameTrackingTaggerProvider
             => false;
 
         public ITextUndoPrimitive Merge(ITextUndoPrimitive older)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
     }
 }
