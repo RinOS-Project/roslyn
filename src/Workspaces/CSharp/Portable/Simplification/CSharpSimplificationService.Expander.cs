@@ -614,7 +614,7 @@ internal partial class CSharpSimplificationService
                         break;
 
                     default:
-                        throw new NotImplementedException();
+                        throw ExceptionUtilities.UnexpectedValue(newNode.Kind());
                 }
             }
 
