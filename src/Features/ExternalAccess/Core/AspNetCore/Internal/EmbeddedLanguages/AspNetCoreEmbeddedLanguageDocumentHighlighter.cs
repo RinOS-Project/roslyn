@@ -9,6 +9,7 @@ using System.Threading;
 using Microsoft.CodeAnalysis.DocumentHighlighting;
 using Microsoft.CodeAnalysis.ExternalAccess.AspNetCore.EmbeddedLanguages;
 using Microsoft.CodeAnalysis.Host.Mef;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.ExternalAccess.AspNetCore.Internal.EmbeddedLanguages;
 
@@ -55,7 +56,7 @@ internal class AspNetCoreEmbeddedLanguageDocumentHighlighter : IEmbeddedLanguage
                 AspNetCoreHighlightSpanKind.Definition => HighlightSpanKind.Definition,
                 AspNetCoreHighlightSpanKind.Reference => HighlightSpanKind.Reference,
                 AspNetCoreHighlightSpanKind.WrittenReference => HighlightSpanKind.WrittenReference,
-                _ => throw new NotImplementedException(),
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
             };
         }
     }

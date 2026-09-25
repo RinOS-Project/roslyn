@@ -63,7 +63,9 @@ internal sealed class CopilotSemanticSearchQueryExecutor(IHostWorkspaceProvider 
         }
 
         public ValueTask OnDocumentUpdatedAsync(DocumentId documentId, ImmutableArray<TextChange> changes, CancellationToken cancellationToken)
-            => throw new NotImplementedException(); // TODO
+            // Semantic-search results are collected from definitions; document updates
+            // do not change the already reported result names.
+            => ValueTask.CompletedTask;
 
         public ValueTask OnLogMessageAsync(string message, CancellationToken cancellationToken)
             => ValueTask.CompletedTask; // TODO
