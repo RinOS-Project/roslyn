@@ -5,6 +5,7 @@
 #nullable enable
 
 using System;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Shared.Extensions;
 
@@ -15,7 +16,7 @@ internal static partial class ITypeSymbolExtensions
         public static readonly SymbolVisitor<Accessibility> Instance = new MinimalAccessibilityVisitor();
 
         public override Accessibility DefaultVisit(ISymbol node)
-            => throw new NotImplementedException();
+            => throw ExceptionUtilities.UnexpectedValue(node.Kind);
 
         public override Accessibility VisitAlias(IAliasSymbol symbol)
             => symbol.Target.Accept(this);

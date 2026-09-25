@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Shared.Extensions;
 
@@ -30,7 +31,7 @@ internal static partial class ITypeSymbolExtensions
         }
 
         public override ITypeSymbol DefaultVisit(ISymbol node)
-            => throw new NotImplementedException();
+            => throw ExceptionUtilities.UnexpectedValue(node.Kind);
 
         private ITypeSymbol VisitType(ITypeSymbol symbol)
         {

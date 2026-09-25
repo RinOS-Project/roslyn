@@ -7,6 +7,7 @@
 
 using System;
 using System.Linq;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Shared.Extensions;
 
@@ -15,7 +16,7 @@ internal static partial class ITypeSymbolExtensions
     private sealed class AnonymousTypeRemover(Compilation compilation) : SymbolVisitor<ITypeSymbol>
     {
         public override ITypeSymbol DefaultVisit(ISymbol node)
-            => throw new NotImplementedException();
+            => throw ExceptionUtilities.UnexpectedValue(node.Kind);
 
         public override ITypeSymbol VisitDynamicType(IDynamicTypeSymbol symbol)
             => symbol;

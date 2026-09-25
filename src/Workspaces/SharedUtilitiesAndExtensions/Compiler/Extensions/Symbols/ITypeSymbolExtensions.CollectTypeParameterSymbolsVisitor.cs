@@ -6,6 +6,7 @@
 
 using System;
 using Microsoft.CodeAnalysis.PooledObjects;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Shared.Extensions;
 
@@ -23,7 +24,7 @@ internal static partial class ITypeSymbolExtensions
         }
 
         public override void DefaultVisit(ISymbol node)
-            => throw new NotImplementedException();
+            => throw ExceptionUtilities.UnexpectedValue(node.Kind);
 
         public override void VisitDynamicType(IDynamicTypeSymbol symbol)
         {
