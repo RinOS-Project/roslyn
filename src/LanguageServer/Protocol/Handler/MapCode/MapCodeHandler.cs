@@ -38,7 +38,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
         Contract.ThrowIfNull(context.Solution);
 
         var solution = request.Updates is { } updates
-            ? await ApplyWorkspaceTextEditsAsync(context.Solution, updates, cancellationToken).ConfigureAwait(false)
+            ? await ApplyWorkspaceTextEditsAsync(context.Solution, updates, context, cancellationToken).ConfigureAwait(false)
             : context.Solution;
 
         using var _ = PooledDictionary<DocumentUri, LSP.TextEdit[]>.GetInstance(out var uriToEditsMap);
@@ -137,10 +137,21 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
             return builder.ToImmutableAndClear();
         }
 
-        static async Task<Solution> ApplyWorkspaceTextEditsAsync(Solution solution, WorkspaceEdit updates, CancellationToken cancellationToken)
+        static async Task<Solution> ApplyWorkspaceTextEditsAsync(
+            Solution solution,
+            WorkspaceEdit updates,
+            RequestContext context,
+            CancellationToken cancellationToken)
         {
             if (updates.Changes is not null && updates.DocumentChanges is not null)
                 throw new ArgumentException("mapCode workspace updates cannot contain both changes and documentChanges.");
+
+            var workspaceEditCapabilities = context.GetRequiredClientCapabilities().Workspace?.WorkspaceEdit;
+            if (updates.DocumentChanges is not null && workspaceEditCapabilities?.DocumentChanges is not true)
+            {
+                throw new NotSupportedException(
+                    "mapCode workspace updates use documentChanges, but the client did not advertise workspaceEdit.documentChanges.");
+            }
 
             var editsByUri = new Dictionary<DocumentUri, List<LSP.TextEdit>>();
 
@@ -162,7 +173,23 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                     {
                         if (!documentChange.TryGetFirst(out var textDocumentEdit))
                         {
-                            throw new NotSupportedException("mapCode workspace updates containing resource operations are not supported.");
+                            var resourceOperation = documentChange.Value switch
+                            {
+                                CreateFile => ResourceOperationKind.Create,
+                                RenameFile => ResourceOperationKind.Rename,
+                                DeleteFile => ResourceOperationKind.Delete,
+                                _ => throw new InvalidOperationException("mapCode workspace update contained an unknown resource operation."),
+                            };
+
+                            if (workspaceEditCapabilities?.ResourceOperations is not { } supportedOperations ||
+                                !supportedOperations.Contains(resourceOperation))
+                            {
+                                throw new NotSupportedException(
+                                    $"mapCode workspace updates require client support for the '{resourceOperation.Value}' resource operation.");
+                            }
+
+                            throw new NotSupportedException(
+                                $"mapCode workspace updates containing the '{resourceOperation.Value}' resource operation are not supported.");
                         }
 
                         AddTextDocumentEdit(textDocumentEdit);
@@ -180,7 +207,18 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                 {
                     var document = solution.GetRequiredDocument(documentId);
                     var oldText = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
-                    var textChanges = edits.Select(edit => ProtocolConversions.TextEditToTextChange(edit, oldText));
+                    var textChanges = edits
+                        .Select(edit => ProtocolConversions.TextEditToTextChange(edit, oldText))
+                        .OrderBy(change => change.Span.Start)
+                        .ToArray();
+                    for (var index = 1; index < textChanges.Length; index++)
+                    {
+                        if (textChanges[index - 1].Span.End > textChanges[index].Span.Start)
+                        {
+                            throw new ArgumentException($"mapCode workspace updates contain overlapping edits for {documentUri}.");
+                        }
+                    }
+
                     solution = solution.WithDocumentText(documentId, oldText.WithChanges(textChanges));
                 }
             }
@@ -189,15 +227,42 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
 
             void AddTextDocumentEdit(TextDocumentEdit textDocumentEdit)
             {
-                if (textDocumentEdit.TextDocument.Version is not null)
-                    throw new NotSupportedException("versioned mapCode workspace updates are not supported.");
+                var documentUri = textDocumentEdit.TextDocument.DocumentUri;
+                if (textDocumentEdit.TextDocument.Version is { } version)
+                {
+                    if (!context.IsTracking(documentUri))
+                    {
+                        throw new NotSupportedException(
+                            "versioned mapCode workspace updates require an LSP-tracked document.");
+                    }
 
-                var edits = textDocumentEdit.Edits.Select(edit => edit.TryGetFirst(out var textEdit)
-                    ? textEdit
-                    : edit.TryGetSecond(out var annotatedTextEdit)
-                        ? annotatedTextEdit
-                        : throw new InvalidOperationException("mapCode workspace update contained an invalid text edit."));
-                AddEdits(textDocumentEdit.TextDocument.DocumentUri, edits);
+                    var trackedDocument = context.GetTrackedDocumentInfo(documentUri);
+                    if (trackedDocument.LspVersion != version)
+                    {
+                        throw new InvalidOperationException(
+                            $"mapCode workspace update for {documentUri} is stale: expected LSP version {trackedDocument.LspVersion}, received {version}.");
+                    }
+                }
+
+                var edits = textDocumentEdit.Edits.Select(edit =>
+                {
+                    if (edit.TryGetFirst(out var textEdit))
+                        return textEdit;
+
+                    if (edit.TryGetSecond(out var annotatedTextEdit))
+                    {
+                        if (workspaceEditCapabilities?.ChangeAnnotationSupport is null)
+                        {
+                            throw new NotSupportedException(
+                                "annotated mapCode workspace updates require client changeAnnotationSupport.");
+                        }
+
+                        return (LSP.TextEdit)annotatedTextEdit;
+                    }
+
+                    throw new InvalidOperationException("mapCode workspace update contained an invalid text edit.");
+                });
+                AddEdits(documentUri, edits);
             }
 
             void AddEdits(DocumentUri documentUri, IEnumerable<LSP.TextEdit> edits)
