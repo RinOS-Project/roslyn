@@ -187,21 +187,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
             async Task<Solution> ApplyTextDocumentEditAsync(Solution currentSolution, TextDocumentEdit textDocumentEdit)
             {
                 var documentUri = textDocumentEdit.TextDocument.DocumentUri;
-                if (textDocumentEdit.TextDocument.Version is { } version)
-                {
-                    if (!context.IsTracking(documentUri))
-                    {
-                        throw new NotSupportedException(
-                            "versioned mapCode workspace updates require an LSP-tracked document.");
-                    }
-
-                    var trackedDocument = context.GetTrackedDocumentInfo(documentUri);
-                    if (trackedDocument.LspVersion != version)
-                    {
-                        throw new InvalidOperationException(
-                            $"mapCode workspace update for {documentUri} is stale: expected LSP version {trackedDocument.LspVersion}, received {version}.");
-                    }
-                }
+                ValidateTextDocumentVersion(textDocumentEdit.TextDocument, context);
 
                 var edits = textDocumentEdit.Edits.Select(edit =>
                 {
@@ -223,6 +209,34 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                 });
 
                 return await ApplyTextEditsAsync(currentSolution, documentUri, edits).ConfigureAwait(false);
+            }
+
+            static void ValidateTextDocumentVersion(
+                OptionalVersionedTextDocumentIdentifier textDocument,
+                RequestContext context)
+            {
+                // LSP uses a null version for a document that is not open in the client. In that
+                // case the workspace solution is the only available version source, so the edit
+                // is intentionally allowed for both tracked and untracked documents. A numeric
+                // version is meaningful only for an LSP-tracked document and must match its
+                // current version; accepting it for an untracked document would make a stale edit
+                // indistinguishable from a current one.
+                if (textDocument.Version is not { } version)
+                    return;
+
+                var documentUri = textDocument.DocumentUri;
+                if (!context.IsTracking(documentUri))
+                {
+                    throw new NotSupportedException(
+                        "versioned mapCode workspace updates require an LSP-tracked document; use a null version for an untracked document.");
+                }
+
+                var trackedDocument = context.GetTrackedDocumentInfo(documentUri);
+                if (trackedDocument.LspVersion != version)
+                {
+                    throw new InvalidOperationException(
+                        $"mapCode workspace update for {documentUri} is stale: expected LSP version {trackedDocument.LspVersion}, received {version}.");
+                }
             }
 
             async Task<Solution> ApplyTextEditsAsync(Solution currentSolution, DocumentUri documentUri, IEnumerable<LSP.TextEdit> edits)
