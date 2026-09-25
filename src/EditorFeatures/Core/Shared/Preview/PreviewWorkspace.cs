@@ -73,10 +73,18 @@ internal class PreviewWorkspace : Workspace
 
     public void OpenDocument(DocumentId documentId, SourceTextContainer textContainer)
     {
+        // Source-generated documents are not returned by Solution.GetTextDocument().
+        // They are already materialized when a preview is created from one, so wire
+        // the generated document directly instead of silently dropping the buffer.
+        if (documentId.IsSourceGenerated)
+        {
+            var sourceGeneratedDocument = this.CurrentSolution.GetRequiredSourceGeneratedDocumentForAlreadyGeneratedId(documentId);
+            this.OnSourceGeneratedDocumentOpened(textContainer, sourceGeneratedDocument);
+            return;
+        }
+
         var document = this.CurrentSolution.GetTextDocument(documentId);
 
-        // This could be null if we're previewing a source generated document; we can't wire those up yet
-        // TODO: implement this
         if (document == null)
         {
             return;
