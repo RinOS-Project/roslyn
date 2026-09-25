@@ -726,7 +726,7 @@ hasBucket:
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                throw new NotImplementedException();
+                return new EnumerableCore(GetEnumerator());
             }
         }
 
@@ -832,7 +832,7 @@ hasBucket:
 
                 void IEnumerator.Reset()
                 {
-                    throw new NotImplementedException();
+                    throw new NotSupportedException();
                 }
             }
 
@@ -843,7 +843,7 @@ hasBucket:
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                throw new NotImplementedException();
+                return new EnumerableCore(GetEnumerator());
             }
         }
 
@@ -938,7 +938,7 @@ hasBucket:
 
             void IEnumerator.Reset()
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException();
             }
         }
 #pragma warning restore CA1063, CA1816 // Implement IDisposable Correctly
@@ -951,7 +951,7 @@ hasBucket:
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return new EnumerableCore(GetEnumerator());
         }
 
         private int HeightApprox()

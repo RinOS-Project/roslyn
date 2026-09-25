@@ -612,7 +612,7 @@ hasBucket:
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                throw new NotImplementedException();
+                return new EnumerableImpl(GetEnumerator());
             }
         }
 
@@ -718,7 +718,7 @@ hasBucket:
 
                 void IEnumerator.Reset()
                 {
-                    throw new NotImplementedException();
+                    throw new NotSupportedException();
                 }
             }
 
@@ -729,7 +729,7 @@ hasBucket:
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                throw new NotImplementedException();
+                return new EnumerableImpl(GetEnumerator());
             }
         }
 
@@ -824,7 +824,7 @@ hasBucket:
 
             void IEnumerator.Reset()
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException();
             }
         }
 
@@ -835,7 +835,7 @@ hasBucket:
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return new EnumerableImpl(GetEnumerator());
         }
 
         private int HeightApprox()
