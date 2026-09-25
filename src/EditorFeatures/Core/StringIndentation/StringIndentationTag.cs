@@ -37,10 +37,10 @@ internal sealed class StringIndentationTag : BrushTag, IEquatable<StringIndentat
         return brush?.Color;
     }
 
-    // Intentionally throwing, we have never supported this facility, and there is no contract around placing
-    // these tags in sets or maps.
+    // Hole spans are tracking spans and equality can map them across snapshots, so no stable position hash exists.
+    // A constant hash preserves the equality contract without making tag collections throw.
     public override int GetHashCode()
-        => throw new NotImplementedException();
+        => 0;
 
     public override bool Equals(object? obj)
         => Equals(obj as StringIndentationTag);

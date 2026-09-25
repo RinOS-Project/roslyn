@@ -36,10 +36,10 @@ internal sealed class InlineHintDataTag<TAdditionalInformation>(
     /// </summary>
     public TAdditionalInformation? AdditionalData;
 
-    // Intentionally throwing, we have never supported this facility, and there is no contract around placing
-    // these tags in sets or maps.
+    // Spans are tracking spans and equality can map them across snapshots, so there is no stable position value
+    // that can be used here. A constant hash preserves the equality contract without making tag collections throw.
     public override int GetHashCode()
-        => throw new NotImplementedException();
+        => 0;
 
     public override bool Equals(object? obj)
         => obj is InlineHintDataTag<TAdditionalInformation> tag && Equals(tag);
