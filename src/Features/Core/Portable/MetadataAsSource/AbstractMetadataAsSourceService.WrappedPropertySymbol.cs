@@ -74,6 +74,6 @@ internal abstract partial class AbstractMetadataAsSourceService
         public bool IsPartialDefinition => _symbol.IsPartialDefinition;
 
         public IPropertySymbol ReduceExtensionMember(ITypeSymbol receiverType)
-            => throw new System.NotImplementedException();
+            => _symbol.ReduceExtensionMember(receiverType);
     }
 }

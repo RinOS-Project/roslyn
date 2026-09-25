@@ -103,40 +103,41 @@ internal abstract partial class AbstractMetadataAsSourceService
         public override ImmutableArray<ISymbol> GetMembers()
             => _members;
 
-        public IEnumerable<string> MemberNames => throw new NotImplementedException();
+        public IEnumerable<string> MemberNames
+            => _members.Select(member => member.Name).Distinct();
 
         public override ImmutableArray<ISymbol> GetMembers(string name)
-            => throw new NotImplementedException();
+            => _members.Where(member => member.Name == name).ToImmutableArray();
 
         public override ImmutableArray<INamedTypeSymbol> GetTypeMembers()
-            => throw new NotImplementedException();
+            => _members.OfType<INamedTypeSymbol>().ToImmutableArray();
 
         public override ImmutableArray<INamedTypeSymbol> GetTypeMembers(string name)
-            => throw new NotImplementedException();
+            => GetMembers(name).OfType<INamedTypeSymbol>().ToImmutableArray();
 
         public override ImmutableArray<INamedTypeSymbol> GetTypeMembers(string name, int arity)
-            => throw new NotImplementedException();
+            => GetTypeMembers(name).Where(member => member.Arity == arity).ToImmutableArray();
 
         public string ToDisplayString(NullableFlowState topLevelNullability, SymbolDisplayFormat format = null)
-            => throw new NotImplementedException();
+            => _symbol.ToDisplayString(topLevelNullability, format);
 
         public ImmutableArray<SymbolDisplayPart> ToDisplayParts(NullableFlowState topLevelNullability, SymbolDisplayFormat format = null)
-            => throw new NotImplementedException();
+            => _symbol.ToDisplayParts(topLevelNullability, format);
 
         public string ToMinimalDisplayString(SemanticModel semanticModel, NullableFlowState topLevelNullability, int position, SymbolDisplayFormat format = null)
-            => throw new NotImplementedException();
+            => _symbol.ToMinimalDisplayString(semanticModel, topLevelNullability, position, format);
 
         public ImmutableArray<SymbolDisplayPart> ToMinimalDisplayParts(SemanticModel semanticModel, NullableFlowState topLevelNullability, int position, SymbolDisplayFormat format = null)
-            => throw new NotImplementedException();
+            => _symbol.ToMinimalDisplayParts(semanticModel, topLevelNullability, position, format);
 
         ITypeSymbol ITypeSymbol.OriginalDefinition => _symbol.OriginalDefinition;
         public new INamedTypeSymbol OriginalDefinition => this;
 
-        public bool IsSerializable => throw new NotImplementedException();
+        public bool IsSerializable => _symbol.IsSerializable;
 
         public bool IsRefLikeType => _symbol.IsRefLikeType;
 
-        public bool IsUnmanagedType => throw new NotImplementedException();
+        public bool IsUnmanagedType => _symbol.IsUnmanagedType;
 
         public bool IsReadOnly => _symbol.IsReadOnly;
 
@@ -161,9 +162,9 @@ internal abstract partial class AbstractMetadataAsSourceService
 
         public INamedTypeSymbol NativeIntegerUnderlyingType => _symbol.NativeIntegerUnderlyingType;
 
-        NullableAnnotation ITypeSymbol.NullableAnnotation => throw new NotImplementedException();
+        NullableAnnotation ITypeSymbol.NullableAnnotation => _symbol.NullableAnnotation;
 
         ITypeSymbol ITypeSymbol.WithNullableAnnotation(NullableAnnotation nullableAnnotation)
-            => throw new NotImplementedException();
+            => _symbol.WithNullableAnnotation(nullableAnnotation);
     }
 }
