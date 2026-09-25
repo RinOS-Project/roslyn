@@ -53,10 +53,10 @@ internal sealed class InheritanceMarginTag : IGlyphTag, IEquatable<InheritanceMa
         Moniker = InheritanceMarginHelpers.GetMoniker(relationship);
     }
 
-    // Intentionally throwing, we have never supported this facility, and there is no contract around placing
-    // these tags in sets or maps.
+    // MembersOnLine uses sequence equality, but its elements intentionally do not expose a stable structural
+    // hash contract. Use a valid constant hash rather than throwing if the tag is placed in a set or map.
     public override int GetHashCode()
-        => throw new NotImplementedException();
+        => 0;
 
     public override bool Equals(object? obj)
         => Equals(obj as InheritanceMarginTag);

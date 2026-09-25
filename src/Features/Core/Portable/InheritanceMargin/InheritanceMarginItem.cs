@@ -6,7 +6,6 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.Serialization;
-using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.InheritanceMargin;
 
@@ -50,7 +49,10 @@ internal readonly struct InheritanceMarginItem(
     public readonly ImmutableArray<InheritanceTargetItem> TargetItems = targetItems;
 
     public override int GetHashCode()
-        => throw ExceptionUtilities.Unreachable();
+        // DisplayTexts and TargetItems use sequence equality, but their element types do not expose a
+        // stable structural hash contract. Use a valid constant hash rather than throwing if the value
+        // is placed in a set or map.
+        => 0;
 
     public override bool Equals(object? obj)
         => obj is InheritanceMarginItem item && Equals(item);
