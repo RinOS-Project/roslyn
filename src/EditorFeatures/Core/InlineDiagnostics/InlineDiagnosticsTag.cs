@@ -190,10 +190,9 @@ internal sealed class InlineDiagnosticsTag : GraphicsTag
     }
 
     /// <summary>
-    /// We do not need to set a default color so this remains unimplemented
+    /// We do not need to set a default color. Returning null lets <see cref="BrushTag"/>
+    /// use its shared fallback color until the adornment applies the diagnostic format.
     /// </summary>
     protected override Color? GetColor(IWpfTextView view, IEditorFormatMap editorFormatMap)
-    {
-        throw new NotImplementedException();
-    }
+        => null;
 }
