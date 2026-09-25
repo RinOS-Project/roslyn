@@ -25,7 +25,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Extensions
         End Function
 
         Public Overrides Function DefaultVisit(node As ISymbol) As TypeSyntax
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Visual Basic type syntax generation does not support this symbol kind.")
         End Function
 
         Private Shared Function AddInformationTo(Of TTypeSyntax As TypeSyntax)(type As TTypeSyntax, symbol As ISymbol) As TTypeSyntax
