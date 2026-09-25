@@ -24,8 +24,8 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <summary>
         /// Enumerates unique keys of all available options in no specific order.
         /// </summary>
-        /// <exception cref="NotImplementedException">Not implemented by the derived type.</exception>
+        /// <exception cref="NotSupportedException">The derived type does not expose key enumeration.</exception>
         public virtual IEnumerable<string> Keys
-            => throw new NotImplementedException();
+            => throw new NotSupportedException("This analyzer config options implementation does not expose key enumeration.");
     }
 }

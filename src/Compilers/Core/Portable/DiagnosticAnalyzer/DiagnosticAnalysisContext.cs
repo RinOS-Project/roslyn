@@ -95,7 +95,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="symbolKind">Action will be executed only if an <see cref="ISymbol"/>'s Kind matches the given <see cref="SymbolKind"/>.</param>
         public virtual void RegisterSymbolStartAction(Action<SymbolStartAnalysisContext> action, SymbolKind symbolKind)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="action">Action to be executed for each non-code document.</param>
         public virtual void RegisterAdditionalFileAction(Action<AdditionalFileAnalysisContext> action)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="action">Action to be executed at the start of semantic analysis of an operation block.</param>
         public virtual void RegisterOperationBlockStartAction(Action<OperationBlockStartAnalysisContext> action)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary> 
@@ -173,7 +173,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="action">Action to be executed for an operation block.</param> 
         public virtual void RegisterOperationBlockAction(Action<OperationBlockAnalysisContext> action)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="operationKinds">Action will be executed only if an <see cref="IOperation"/>'s Kind matches one of the operation kind values.</param>
         public virtual void RegisterOperationAction(Action<OperationAnalysisContext> action, params ImmutableArray<OperationKind> operationKinds)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// </remarks>
         public virtual void EnableConcurrentExecution()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// </summary>
         public virtual void ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags analysisMode)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -393,7 +393,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="symbolKind">Action will be executed only if an <see cref="ISymbol"/>'s Kind matches the given <see cref="SymbolKind"/>.</param>
         public virtual void RegisterSymbolStartAction(Action<SymbolStartAnalysisContext> action, SymbolKind symbolKind)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -420,7 +420,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="action">Action to be executed at the start of semantic analysis of an operation block.</param>
         public virtual void RegisterOperationBlockStartAction(Action<OperationBlockStartAnalysisContext> action)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary> 
@@ -430,7 +430,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="action">Action to be executed for an operation block.</param> 
         public virtual void RegisterOperationBlockAction(Action<OperationBlockAnalysisContext> action)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -447,7 +447,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="action">Action to be executed for each non-code document.</param>
         public virtual void RegisterAdditionalFileAction(Action<AdditionalFileAnalysisContext> action)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -496,7 +496,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         /// <param name="operationKinds">Action will be executed only if an <see cref="IOperation"/>'s Kind matches one of the operation kind values.</param>
         public virtual void RegisterOperationAction(Action<OperationAnalysisContext> action, params ImmutableArray<OperationKind> operationKinds)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("This analysis context does not support this optional analyzer API.");
         }
 
         /// <summary>
@@ -554,7 +554,8 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         internal virtual bool TryGetValueCore<TKey, TValue>(TKey key, AnalysisValueProvider<TKey, TValue> valueProvider, [MaybeNullWhen(false)] out TValue value)
             where TKey : class
         {
-            throw new NotImplementedException();
+            value = default;
+            return false;
         }
     }
 
