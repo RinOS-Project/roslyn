@@ -732,12 +732,12 @@ namespace Microsoft.CodeAnalysis
 
         protected virtual void WriteTriviaTo(TextWriter writer)
         {
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         protected virtual void WriteTokenTo(TextWriter writer, bool leading, bool trailing)
         {
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         #endregion
