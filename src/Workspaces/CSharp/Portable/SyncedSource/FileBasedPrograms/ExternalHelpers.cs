@@ -30,13 +30,13 @@ internal partial class ExternalHelpers
 #elif FILE_BASED_PROGRAMS_SOURCE_PACKAGE_BUILD
     // This path should only be used when we are verifying that the source package itself builds under netstandard2.0.
     public static partial int CombineHashCodes(int value1, int value2)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("The netstandard2.0 source-package verification path does not execute external helpers.");
 
     public static partial string GetRelativePath(string relativeTo, string path)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("The netstandard2.0 source-package verification path does not execute external helpers.");
 
     public static partial bool IsPathFullyQualified(string path)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("The netstandard2.0 source-package verification path does not execute external helpers.");
 
 #endif
 }
