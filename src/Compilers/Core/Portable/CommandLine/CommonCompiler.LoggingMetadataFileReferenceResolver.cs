@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis
 {
@@ -41,12 +42,14 @@ namespace Microsoft.CodeAnalysis
 
             public override int GetHashCode()
             {
-                throw new NotImplementedException();
+                return Hash.Combine(_provider, _pathResolver.GetHashCode());
             }
 
             public bool Equals(LoggingMetadataFileReferenceResolver? other)
             {
-                throw new NotImplementedException();
+                return other is not null &&
+                    _pathResolver.Equals(other._pathResolver) &&
+                    _provider.Equals(other._provider);
             }
 
             public override bool Equals(object? obj) => obj is LoggingMetadataFileReferenceResolver other && Equals(other);
