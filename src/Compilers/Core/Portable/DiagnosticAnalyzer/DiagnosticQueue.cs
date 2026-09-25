@@ -67,17 +67,17 @@ namespace Microsoft.CodeAnalysis.Diagnostics
 
             public override ImmutableArray<Diagnostic> DequeueLocalSemanticDiagnostics(DiagnosticAnalyzer analyzer)
             {
-                throw new NotImplementedException();
+                return ImmutableArray<Diagnostic>.Empty;
             }
 
             public override ImmutableArray<Diagnostic> DequeueLocalSyntaxDiagnostics(DiagnosticAnalyzer analyzer)
             {
-                throw new NotImplementedException();
+                return ImmutableArray<Diagnostic>.Empty;
             }
 
             public override ImmutableArray<Diagnostic> DequeueNonLocalDiagnostics(DiagnosticAnalyzer analyzer)
             {
-                throw new NotImplementedException();
+                return ImmutableArray<Diagnostic>.Empty;
             }
 
             public override bool TryComplete()
