@@ -2028,7 +2028,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
 
         <Obsolete("Compilation.IsSymbolAccessibleWithin is not designed for use within the compilers", True)>
         Friend Shadows Function IsSymbolAccessibleWithin(symbol As ISymbol, within As ISymbol, Optional throughType As ITypeSymbol = Nothing) As Boolean
-            Throw New NotImplementedException
+            Throw ExceptionUtilities.Unreachable
         End Function
 
 #End Region

@@ -2517,7 +2517,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             ISymbol within,
             ITypeSymbol? throughType = null)
         {
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         private ConcurrentSet<MethodSymbol>? _moduleInitializerMethods;
