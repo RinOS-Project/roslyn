@@ -1556,7 +1556,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                 Case Else
                     ' NOTE: All error codes must be explicitly handled in the below select case statement
                     '       to ensure that we correctly classify all error codes as build-only or not.
-                    Throw New NotImplementedException($"ERRID.{code}")
+                     Throw ExceptionUtilities.UnexpectedValue(code)
             End Select
         End Function
     End Module

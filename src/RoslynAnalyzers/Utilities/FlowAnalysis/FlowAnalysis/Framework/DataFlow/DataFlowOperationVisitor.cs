@@ -1356,13 +1356,13 @@ namespace Microsoft.CodeAnalysis.FlowAnalysis.DataFlow
         protected virtual void UpdateReachability(BasicBlock basicBlock, TAnalysisData analysisData, bool isReachable)
         {
             Debug.Assert(PredicateAnalysis);
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         protected virtual bool IsReachableBlockData(TAnalysisData analysisData)
         {
             Debug.Assert(PredicateAnalysis);
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         private bool GetBlockReachability(BasicBlock basicBlock)
@@ -1894,25 +1894,25 @@ namespace Microsoft.CodeAnalysis.FlowAnalysis.DataFlow
         protected virtual PredicateValueKind SetValueForEqualsOrNotEqualsComparisonOperator(IOperation leftOperand, IOperation rightOperand, bool equals, bool isReferenceEquality, TAnalysisData targetAnalysisData)
         {
             Debug.Assert(PredicateAnalysis);
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         protected virtual PredicateValueKind SetValueForIsNullComparisonOperator(IOperation leftOperand, bool equals, TAnalysisData targetAnalysisData)
         {
             Debug.Assert(PredicateAnalysis);
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         protected virtual void StartTrackingPredicatedData(AnalysisEntity predicatedEntity, TAnalysisData? truePredicateData, TAnalysisData? falsePredicateData)
         {
             Debug.Assert(PredicateAnalysis);
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         protected virtual void StopTrackingPredicatedData(AnalysisEntity predicatedEntity)
         {
             Debug.Assert(PredicateAnalysis);
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         private bool HasPredicatedDataForEntity(AnalysisEntity predicatedEntity)
@@ -1921,19 +1921,19 @@ namespace Microsoft.CodeAnalysis.FlowAnalysis.DataFlow
         protected virtual bool HasPredicatedDataForEntity(TAnalysisData analysisData, AnalysisEntity predicatedEntity)
         {
             Debug.Assert(PredicateAnalysis);
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         protected virtual void TransferPredicatedData(AnalysisEntity fromEntity, AnalysisEntity toEntity)
         {
             Debug.Assert(PredicateAnalysis);
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         protected virtual PredicateValueKind ApplyPredicatedDataForEntity(TAnalysisData analysisData, AnalysisEntity predicatedEntity, bool trueData)
         {
             Debug.Assert(PredicateAnalysis);
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         protected virtual void ProcessThrowValue(IOperation? thrownValue)

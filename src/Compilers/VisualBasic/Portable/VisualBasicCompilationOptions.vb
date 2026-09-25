@@ -1385,7 +1385,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                 Return NullableContextOptions.Disable
             End Get
             Protected Set(value As NullableContextOptions)
-                Throw New NotImplementedException()
+                Throw New NotSupportedException("Visual Basic does not support nullable context options.")
             End Set
         End Property
     End Class
