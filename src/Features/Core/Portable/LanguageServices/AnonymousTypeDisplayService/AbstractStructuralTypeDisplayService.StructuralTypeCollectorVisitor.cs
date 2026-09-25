@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Shared.Extensions;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.LanguageService;
 
@@ -16,7 +17,7 @@ internal abstract partial class AbstractStructuralTypeDisplayService
         private readonly Dictionary<INamedTypeSymbol, (int order, int count)> _namedTypes = namedTypes;
 
         public override void DefaultVisit(ISymbol node)
-            => throw new NotImplementedException();
+            => throw ExceptionUtilities.UnexpectedValue(node.Kind);
 
         public override void VisitAlias(IAliasSymbol symbol)
         {

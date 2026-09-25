@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Shared.Extensions;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.ExtractMethod;
 
@@ -28,7 +29,7 @@ internal abstract partial class AbstractExtractMethodService<
             }
 
             public override void DefaultVisit(ISymbol node)
-                => throw new NotImplementedException();
+                => throw ExceptionUtilities.UnexpectedValue(node.Kind);
 
             public override void VisitDynamicType(IDynamicTypeSymbol dynamicTypeSymbol)
             {
