@@ -210,7 +210,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.CodeModel
                         Return GetImplementsStatementEndPoint(text, DirectCast(node, ImplementsStatementSyntax), part)
                     Case Else
                         Debug.Fail(String.Format("Unsupported node kind: {0}", CType(node.Kind, SyntaxKind)))
-                        Throw New NotImplementedException()
+                        Throw ExceptionUtilities.UnexpectedValue(node.Kind)
                 End Select
             End Function
 

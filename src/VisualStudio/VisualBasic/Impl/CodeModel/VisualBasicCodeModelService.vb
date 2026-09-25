@@ -628,7 +628,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.CodeModel
                      SyntaxKind.EnumMemberDeclaration
                     Return CType(CodeVariable.Create(state, fileCodeModel, nodeKey, node.Kind), EnvDTE.CodeElement)
                 Case Else
-                    Throw New NotImplementedException()
+                     Throw ExceptionUtilities.UnexpectedValue(node.Kind)
             End Select
         End Function
 
@@ -677,7 +677,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.CodeModel
                     Return CType(CodeImplementsStatement.CreateUnknown(state, fileCodeModel, node.Kind, GetName(node)), EnvDTE.CodeElement)
 
                 Case Else
-                    Throw New NotImplementedException()
+                     Throw ExceptionUtilities.UnexpectedValue(node.Kind)
             End Select
         End Function
 
@@ -3474,7 +3474,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.CodeModel
                 Return SetVariableType(DirectCast(node, VariableDeclaratorSyntax), typeSymbol)
             End If
 
-            Throw New NotImplementedException()
+            Throw ExceptionUtilities.UnexpectedValue(node.Kind)
         End Function
 
         Public Overrides Function GetFullyQualifiedName(name As String, position As Integer, semanticModel As SemanticModel) As String

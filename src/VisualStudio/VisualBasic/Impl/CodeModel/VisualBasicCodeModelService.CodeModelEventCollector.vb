@@ -588,7 +588,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.CodeModel
                 End If
 
                 Debug.Fail(String.Format("Unexpected member kind: {0}", oldMember.Kind))
-                Throw New NotImplementedException()
+                Throw ExceptionUtilities.UnexpectedValue(oldMember.Kind)
             End Function
 
             Private Function CompareMethods(oldMethod As MethodBaseSyntax, newMethod As MethodBaseSyntax, newNodeParent As SyntaxNode, eventQueue As CodeModelEventQueue) As Boolean
