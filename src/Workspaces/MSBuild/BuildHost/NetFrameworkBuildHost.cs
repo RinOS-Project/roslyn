@@ -100,7 +100,17 @@ internal sealed class NetFrameworkBuildHost : AbstractBuildHost
 
     protected override MSBuildLocation? FindMSBuild(string projectOrSolutionFilePath, bool includeUnloadableInstances)
     {
-        throw new System.NotImplementedException();
+        // The .NET Framework host uses the highest Visual Studio installation available on the machine.
+        // Unlike the .NET Core host, there is no global.json-aware SDK selection path here.
+        var instance = MSBuildLocator.QueryVisualStudioInstances().OrderByDescending(vs => vs.Version).FirstOrDefault();
+
+        if (instance != null)
+        {
+            return new(instance.MSBuildPath, instance.Version.ToString());
+        }
+
+        Logger.LogCritical("No compatible MSBuild instance could be found.");
+        return null;
     }
 
     protected override bool IsMSBuildLoaded()
