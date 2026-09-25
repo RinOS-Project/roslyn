@@ -331,7 +331,7 @@ internal sealed class FileChangeWatcher : IFileChangeWatcher
                     return;
 
                 default:
-                    throw new NotImplementedException();
+                    throw ExceptionUtilities.UnexpectedValue(_kind);
             }
         }
     }

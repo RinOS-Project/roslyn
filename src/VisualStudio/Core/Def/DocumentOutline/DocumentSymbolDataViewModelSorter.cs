@@ -40,7 +40,7 @@ internal sealed class DocumentSymbolDataViewModelSorter : MarkupExtension, IMult
         };
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Document symbol sorting is a one-way value conversion.");
 
     public override object ProvideValue(IServiceProvider serviceProvider)
         => Instance;

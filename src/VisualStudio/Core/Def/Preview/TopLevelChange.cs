@@ -43,7 +43,11 @@ internal sealed class TopLevelChange : AbstractChange
     }
 
     public override int GetTipText(out VSTREETOOLTIPTYPE eTipType, out string pbstrText)
-        => throw new NotImplementedException();
+    {
+        eTipType = VSTREETOOLTIPTYPE.TIPTYPE_DEFAULT;
+        pbstrText = null;
+        return VSConstants.E_FAIL;
+    }
 
     public override int OnRequestSource(object pIUnknownTextView)
     {

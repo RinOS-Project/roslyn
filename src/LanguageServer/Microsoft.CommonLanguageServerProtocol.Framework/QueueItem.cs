@@ -221,7 +221,7 @@ internal sealed class QueueItem<TRequestContext>
             }
             else
             {
-                throw new NotImplementedException($"Unrecognized {nameof(IMethodHandler)} implementation {handler.GetType()}.");
+                throw new InvalidOperationException($"Unrecognized {nameof(IMethodHandler)} implementation {handler.GetType()}.");
             }
 
             _logger.LogDebug("Request handler completed successfully.");

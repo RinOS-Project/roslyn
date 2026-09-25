@@ -55,7 +55,7 @@ internal sealed class RequestContextFactory : AbstractRequestContextFactory<Requ
         }
         else
         {
-            throw new NotImplementedException($"TextDocumentIdentifier in an unrecognized type for method: {queueItem.MethodName}");
+            throw new InvalidOperationException($"TextDocumentIdentifier handler has an unrecognized type for method: {queueItem.MethodName}");
         }
 
         bool requiresLSPSolution;
