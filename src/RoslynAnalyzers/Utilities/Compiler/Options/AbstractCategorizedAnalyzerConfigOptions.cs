@@ -60,7 +60,7 @@ namespace Analyzer.Utilities
             {
                 OptionKind.DotnetCodeQuality => DotnetCodeQualityKeyPrefix,
                 OptionKind.BuildProperty => BuildPropertyKeyPrefix,
-                _ => throw new NotImplementedException()
+                _ => throw ExceptionUtilities.UnexpectedValue(optionKind)
             };
 
         [PerformanceSensitive("https://github.com/dotnet/roslyn-analyzers/issues/4905", AllowCaptures = false)]

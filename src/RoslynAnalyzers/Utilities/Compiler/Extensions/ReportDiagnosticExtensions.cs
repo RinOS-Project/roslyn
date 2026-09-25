@@ -17,7 +17,7 @@ namespace Microsoft.CodeAnalysis
                 ReportDiagnostic.Info => "suggestion",
                 ReportDiagnostic.Hidden => "silent",
                 ReportDiagnostic.Suppress => "none",
-                _ => throw new NotImplementedException(),
+                _ => throw Roslyn.Utilities.ExceptionUtilities.UnexpectedValue(reportDiagnostic),
             };
         }
 

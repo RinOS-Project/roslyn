@@ -63,7 +63,7 @@ namespace Analyzer.Utilities
                     RuleLevel.Disabled => (DiagnosticSeverity.Warning, false),
                     RuleLevel.CandidateForRemoval => (DiagnosticSeverity.Warning, false),
                     RuleLevel.BuildError => (DiagnosticSeverity.Error, true),
-                    _ => throw new System.NotImplementedException(),
+                    _ => throw ExceptionUtilities.UnexpectedValue(ruleLevel),
                 };
             }
 
