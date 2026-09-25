@@ -243,11 +243,11 @@ namespace Microsoft.CodeAnalysis
         /// </remarks>
         public abstract NullableContextOptions NullableContextOptions { get; protected set; }
 
+        private ImmutableArray<string> _features;
+
         /// <summary>
         /// A set of strings designating experimental compiler features that are to be enabled.
         /// </summary>
-        private ImmutableArray<string> _features;
-
         [Obsolete]
         protected internal ImmutableArray<string> Features
         {
