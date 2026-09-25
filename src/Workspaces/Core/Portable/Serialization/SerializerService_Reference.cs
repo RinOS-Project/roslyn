@@ -571,8 +571,7 @@ internal partial class SerializerService
 
         protected override DocumentationProvider CreateDocumentationProvider()
         {
-            // TODO: properly implement this
-            throw new NotImplementedException();
+            return _provider;
         }
 
         protected override Metadata GetMetadataImpl()
