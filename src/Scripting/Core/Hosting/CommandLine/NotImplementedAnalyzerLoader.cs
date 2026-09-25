@@ -5,6 +5,7 @@
 #nullable disable
 
 using System;
+using System.IO;
 using System.Reflection;
 
 namespace Microsoft.CodeAnalysis.Scripting.Hosting
@@ -13,12 +14,26 @@ namespace Microsoft.CodeAnalysis.Scripting.Hosting
     {
         public void AddDependencyLocation(string fullPath)
         {
-            throw new NotImplementedException();
+            RequireAbsolutePath(fullPath);
         }
 
         public Assembly LoadFromPath(string fullPath)
         {
-            throw new NotImplementedException();
+            RequireAbsolutePath(fullPath);
+            return Assembly.LoadFrom(fullPath);
+        }
+
+        private static void RequireAbsolutePath(string fullPath)
+        {
+            if (fullPath == null)
+            {
+                throw new ArgumentNullException(nameof(fullPath));
+            }
+
+            if (!Path.IsPathRooted(fullPath))
+            {
+                throw new ArgumentException("The analyzer path must be absolute.", nameof(fullPath));
+            }
         }
     }
 }
