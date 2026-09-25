@@ -41,7 +41,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 
             public override bool Equals(object obj)
             {
-                throw new NotImplementedException();
+                return obj is LocalNameAndScope other && Equals(other);
             }
 
             public override int GetHashCode()

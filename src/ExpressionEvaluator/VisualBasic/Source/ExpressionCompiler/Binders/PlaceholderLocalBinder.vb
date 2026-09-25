@@ -86,7 +86,13 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         End Function
 
         Friend Overrides Sub AddLookupSymbolsInfoInSingleBinder(nameSet As LookupSymbolsInfo, options As LookupOptions, originalBinder As Binder)
-            Throw New NotImplementedException()
+            If (options And (LookupOptions.NamespacesOrTypesOnly Or LookupOptions.LabelsOnly Or LookupOptions.MustNotBeLocalOrParameter)) = 0 Then
+                For Each local In _implicitDeclarations.Values
+                    If originalBinder.CanAddLookupSymbolInfo(local, options, nameSet, Nothing) Then
+                        nameSet.AddSymbol(local, local.Name, 0)
+                    End If
+                Next
+            End If
         End Sub
 
     End Class

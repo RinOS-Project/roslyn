@@ -92,7 +92,16 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         internal sealed override void AddLookupSymbolsInfoInSingleBinder(LookupSymbolsInfo info, LookupOptions options, Binder originalBinder)
         {
-            throw new NotImplementedException();
+            if (options.CanConsiderMembers())
+            {
+                foreach (var alias in _aliases)
+                {
+                    if (originalBinder.CanAddLookupSymbolInfo(alias, options, info, null))
+                    {
+                        info.AddSymbol(alias, alias.Name, 0);
+                    }
+                }
+            }
         }
 
         protected override ImmutableArray<LocalSymbol> BuildLocals()

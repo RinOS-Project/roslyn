@@ -66,7 +66,16 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         internal override void AddLookupSymbolsInfoInSingleBinder(LookupSymbolsInfo info, LookupOptions options, Binder originalBinder)
         {
-            throw new NotImplementedException();
+            if (options.CanConsiderMembers())
+            {
+                foreach (var parameter in _targetParameters)
+                {
+                    if (originalBinder.CanAddLookupSymbolInfo(parameter, options, info, null))
+                    {
+                        info.AddSymbol(parameter, parameter.Name, 0);
+                    }
+                }
+            }
         }
 
         internal override Symbol ContainingMemberOrLambda
