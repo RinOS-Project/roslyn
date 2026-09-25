@@ -47,7 +47,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.IntroduceVariable
         End Function
 
         Protected Overrides Function CreateTupleDeconstructionAsync(document As Document, tupleType As INamedTypeSymbol, expression As ExpressionSyntax, cancellationToken As CancellationToken) As Task(Of ExpressionStatementSyntax)
-            Throw New NotImplementedException()
+            Throw ExceptionUtilities.Unreachable()
         End Function
     End Class
 End Namespace
