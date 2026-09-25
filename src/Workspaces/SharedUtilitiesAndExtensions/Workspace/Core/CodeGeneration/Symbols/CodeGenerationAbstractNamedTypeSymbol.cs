@@ -112,7 +112,8 @@ internal abstract class CodeGenerationAbstractNamedTypeSymbol : CodeGenerationTy
 
     public bool IsComImport => false;
 
-    public bool IsUnmanagedType => throw new NotImplementedException();
+    public bool IsUnmanagedType
+        => throw new NotSupportedException("Synthetic code-generation symbols do not provide unmanaged-type metadata.");
 
     public bool IsRefLikeType => Modifiers.IsRef;
 

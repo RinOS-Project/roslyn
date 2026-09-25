@@ -196,16 +196,16 @@ internal abstract class CodeGenerationSymbol : ISymbol
     }
 
     public string ToDisplayString(SymbolDisplayFormat format = null)
-        => throw new NotImplementedException();
+        => SymbolDisplay.ToDisplayString(this, format);
 
     public ImmutableArray<SymbolDisplayPart> ToDisplayParts(SymbolDisplayFormat format = null)
-        => throw new NotImplementedException();
+        => SymbolDisplay.ToDisplayParts(this, format);
 
     public string ToMinimalDisplayString(SemanticModel semanticModel, int position, SymbolDisplayFormat format = null)
-        => throw new NotImplementedException();
+        => SymbolDisplay.ToMinimalDisplayString(this, semanticModel, position, format);
 
     public ImmutableArray<SymbolDisplayPart> ToMinimalDisplayParts(SemanticModel semanticModel, int position, SymbolDisplayFormat format = null)
-        => throw new NotImplementedException();
+        => SymbolDisplay.ToMinimalDisplayParts(this, semanticModel, position, format);
 
     public virtual string MetadataName
     {

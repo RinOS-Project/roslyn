@@ -59,16 +59,16 @@ internal abstract class CodeGenerationTypeSymbol(
     public ISymbol FindImplementationForInterfaceMember(ISymbol interfaceMember) => null;
 
     public string ToDisplayString(NullableFlowState topLevelNullability, SymbolDisplayFormat format = null)
-        => throw new System.NotImplementedException();
+        => SymbolDisplay.ToDisplayString(this, topLevelNullability, format);
 
     public ImmutableArray<SymbolDisplayPart> ToDisplayParts(NullableFlowState topLevelNullability, SymbolDisplayFormat format = null)
-        => throw new System.NotImplementedException();
+        => SymbolDisplay.ToDisplayParts(this, topLevelNullability, format);
 
     public string ToMinimalDisplayString(SemanticModel semanticModel, NullableFlowState topLevelNullability, int position, SymbolDisplayFormat format = null)
-        => throw new System.NotImplementedException();
+        => SymbolDisplay.ToMinimalDisplayString(this, topLevelNullability, semanticModel, position, format);
 
     public ImmutableArray<SymbolDisplayPart> ToMinimalDisplayParts(SemanticModel semanticModel, NullableFlowState topLevelNullability, int position, SymbolDisplayFormat format = null)
-        => throw new System.NotImplementedException();
+        => SymbolDisplay.ToMinimalDisplayParts(this, topLevelNullability, semanticModel, position, format);
 
     public override bool IsNamespace => false;
 
@@ -76,7 +76,8 @@ internal abstract class CodeGenerationTypeSymbol(
 
     bool ITypeSymbol.IsRefLikeType => false;
 
-    bool ITypeSymbol.IsUnmanagedType => throw new System.NotImplementedException();
+    bool ITypeSymbol.IsUnmanagedType
+        => throw new NotSupportedException("Synthetic code-generation symbols do not provide unmanaged-type metadata.");
 
     bool ITypeSymbol.IsReadOnly => Modifiers.IsReadOnly;
 
@@ -89,7 +90,8 @@ internal abstract class CodeGenerationTypeSymbol(
     public virtual bool IsClosed => false;
 
 #if !OLDER_ROSLYN
-    public ClosedDerivedTypeInfo GetClosedDerivedTypeInfo(CancellationToken cancellationToken) => throw new NotImplementedException();
+    public ClosedDerivedTypeInfo GetClosedDerivedTypeInfo(CancellationToken cancellationToken)
+        => throw new NotSupportedException("Synthetic code-generation symbols do not provide closed-derived-type metadata.");
 #endif
 
     public NullableAnnotation NullableAnnotation { get; } = nullableAnnotation;
