@@ -60,27 +60,29 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Sub
 
         Public Sub SetDebugSwitches(dbgSwitches() As Boolean) Implements IVbCompiler.SetDebugSwitches
-            Throw New NotImplementedException()
+            ' Debug switches do not exist in Roslyn.
+            Throw New NotSupportedException()
         End Sub
 
         Public Sub SetLoggingOptions(options As UInteger) Implements IVbCompiler.SetLoggingOptions
-            Throw New NotImplementedException()
+            ' Legacy logging options have no equivalent in Roslyn.
         End Sub
 
         Public Sub SetOutputLevel(OutputLevel As OutputLevel) Implements IVbCompiler.SetOutputLevel
-            Throw New NotImplementedException()
+            ' Legacy output levels have no equivalent in Roslyn.
         End Sub
 
         Public Sub SetWatsonType(WatsonType As WatsonType, WatsonLcid As Integer, wszAdditionalFiles As String) Implements IVbCompiler.SetWatsonType
-            Throw New NotImplementedException()
+            ' Watson settings are owned by the host in the Roslyn world.
+            Throw New NotSupportedException()
         End Sub
 
         Public Sub StartBackgroundCompiler() Implements IVbCompiler.StartBackgroundCompiler
-            Throw New NotImplementedException()
+            ' This method has no meaning in the Roslyn world.
         End Sub
 
         Public Sub StopBackgroundCompiler() Implements IVbCompiler.StopBackgroundCompiler
-            Throw New NotImplementedException()
+            ' This method has no meaning in the Roslyn world.
         End Sub
     End Class
 End Namespace

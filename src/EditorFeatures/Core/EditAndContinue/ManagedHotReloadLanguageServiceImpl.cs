@@ -208,7 +208,7 @@ internal sealed class ManagedHotReloadLanguageServiceImpl(
 
     [Obsolete]
     public ValueTask UpdateBaselinesAsync(ImmutableArray<string> projectPaths, CancellationToken cancellationToken)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("UpdateBaselinesAsync is obsolete and has no replacement in the current Hot Reload contract.");
 
     public async ValueTask EndSessionAsync(CancellationToken cancellationToken)
     {
@@ -273,7 +273,7 @@ internal sealed class ManagedHotReloadLanguageServiceImpl(
 
     [Obsolete]
     public ValueTask<ManagedHotReloadUpdates> GetUpdatesAsync(CancellationToken cancellationToken)
-        => throw new NotImplementedException();
+        => GetUpdatesAsync(ImmutableArray<RunningProjectInfo>.Empty, cancellationToken);
 
     [Obsolete]
     public ValueTask<ManagedHotReloadUpdates> GetUpdatesAsync(ImmutableArray<string> runningProjects, CancellationToken cancellationToken)
@@ -281,7 +281,7 @@ internal sealed class ManagedHotReloadLanguageServiceImpl(
         // StreamJsonRpc may use this overload when the method is invoked with empty parameters. Call the new implementation instead.
 
         if (!runningProjects.IsEmpty)
-            throw new NotImplementedException();
+            throw new NotSupportedException("The obsolete project-path overload is not supported. Use RunningProjectInfo.");
 
         return GetUpdatesAsync(ImmutableArray<RunningProjectInfo>.Empty, cancellationToken);
     }

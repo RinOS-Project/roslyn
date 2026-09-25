@@ -50,8 +50,8 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic
         End Sub
 
         Public Sub SetWatsonType(WatsonType As WatsonType, WatsonLcid As Integer, wszAdditionalFiles As String) Implements IVbCompiler.SetWatsonType
-            ' TODO: It's not clear what the compiler should do with Watson information at this point.
-            Throw New NotImplementedException()
+            ' Watson settings are owned by the host in the Roslyn world.
+            Throw New NotSupportedException()
         End Sub
 
         Public Sub StartBackgroundCompiler() Implements IVbCompiler.StartBackgroundCompiler
