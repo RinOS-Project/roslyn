@@ -7,6 +7,7 @@ Imports Microsoft.CodeAnalysis
 Imports Microsoft.CodeAnalysis.Host
 Imports Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim.Interop
 Imports Microsoft.VisualStudio.Shell.Interop
+Imports Microsoft.CodeAnalysis.VisualBasic
 
 Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
     Partial Friend Class TempPECompiler
@@ -49,7 +50,8 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Function
 
         Public Function IsValidIdentifier(wszIdentifier As String) As Boolean Implements IVbCompiler.IsValidIdentifier
-            Throw New NotImplementedException()
+            Dim token = SyntaxFactory.ParseToken(wszIdentifier)
+            Return token.Kind = SyntaxKind.IdentifierToken
         End Function
 
         Public Sub RegisterVbCompilerHost(pVbCompilerHost As IVbCompilerHost) Implements IVbCompiler.RegisterVbCompilerHost
