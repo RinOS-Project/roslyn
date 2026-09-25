@@ -284,7 +284,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Sub
 
         Public Sub RenameDefaultNamespace(bstrDefaultNamespace As String) Implements IVbCompilerProject.RenameDefaultNamespace
-            ' TODO: implement
+            ProjectSystemProject.DefaultNamespace = bstrDefaultNamespace
         End Sub
 
         Public Sub RenameFile(wszOldFileName As String, wszNewFileName As String, itemid As UInteger) Implements IVbCompilerProject.RenameFile
@@ -294,7 +294,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Sub
 
         Public Sub RenameProject(wszNewProjectName As String) Implements IVbCompilerProject.RenameProject
-            ' TODO: implement
+            ProjectSystemProject.DisplayName = wszNewProjectName
         End Sub
 
         Public Sub SetBackgroundCompilerPriorityLow() Implements IVbCompilerProject.SetBackgroundCompilerPriorityLow
@@ -355,7 +355,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Sub
 
         Public Sub SetModuleAssemblyName(wszName As String) Implements IVbCompilerProject.SetModuleAssemblyName
-            Throw New NotImplementedException()
+            ProjectSystemProject.AssemblyName = wszName
         End Sub
 
         Public Sub SetStreamForPDB(pStreamPDB As IStream) Implements IVbCompilerProject.SetStreamForPDB
