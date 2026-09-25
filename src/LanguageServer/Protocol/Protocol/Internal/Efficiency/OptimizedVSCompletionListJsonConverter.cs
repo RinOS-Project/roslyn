@@ -16,7 +16,16 @@ internal sealed class OptimizedVSCompletionListJsonConverter : JsonConverter<Opt
     public static readonly OptimizedVSCompletionListJsonConverter Instance = new();
     private static readonly ConcurrentDictionary<ImageId, string> IconRawJson = new();
 
-    public override OptimizedVSCompletionList Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+    public override OptimizedVSCompletionList Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.Null)
+        {
+            return null;
+        }
+
+        var completionList = JsonSerializer.Deserialize<VSInternalCompletionList>(ref reader, options);
+        return completionList is null ? null : new OptimizedVSCompletionList(completionList);
+    }
 
     public override void Write(Utf8JsonWriter writer, OptimizedVSCompletionList value, JsonSerializerOptions options)
     {
