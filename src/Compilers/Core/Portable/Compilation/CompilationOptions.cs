@@ -246,16 +246,15 @@ namespace Microsoft.CodeAnalysis
         /// <summary>
         /// A set of strings designating experimental compiler features that are to be enabled.
         /// </summary>
+        private ImmutableArray<string> _features;
+
         [Obsolete]
         protected internal ImmutableArray<string> Features
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get => _features;
             protected set
             {
-                throw new NotImplementedException();
+                _features = value;
             }
         }
 

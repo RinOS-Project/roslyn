@@ -273,6 +273,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             // https://github.com/dotnet/roslyn/issues/82546: should be in the constructor
             MemorySafetyRules = other.MemorySafetyRules;
+            Features = other.Features;
         }
 
         public override string Language => LanguageNames.CSharp;
@@ -686,7 +687,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         [Obsolete]
         protected override CompilationOptions CommonWithFeatures(ImmutableArray<string> features)
         {
-            throw new NotImplementedException();
+            var result = new CSharpCompilationOptions(this);
+            result.Features = features;
+            return result;
         }
 
         internal override void ValidateOptions(ArrayBuilder<Diagnostic> builder)
