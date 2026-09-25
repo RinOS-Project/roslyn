@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.NavigationBar;
 
@@ -20,6 +21,6 @@ internal abstract partial class RoslynNavigationBarItem
             => base.Equals(other);
 
         public override int GetHashCode()
-            => throw new NotImplementedException();
+            => Hash.Combine(DestinationTypeSymbolKey.GetHashCode(), GetHashCodeCore());
     }
 }

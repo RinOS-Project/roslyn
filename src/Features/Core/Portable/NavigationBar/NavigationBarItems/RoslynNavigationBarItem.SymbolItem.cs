@@ -48,7 +48,9 @@ internal abstract partial class RoslynNavigationBarItem
                Location.Equals(other.Location);
 
         public override int GetHashCode()
-            => throw new NotImplementedException();
+            => Hash.Combine(
+                Location.GetHashCode(),
+                Hash.Combine(IsObsolete, Hash.Combine(Name, GetHashCodeCore())));
     }
 
     [DataContract]
@@ -122,6 +124,18 @@ internal abstract partial class RoslynNavigationBarItem
         }
 
         public override int GetHashCode()
-            => throw new NotImplementedException();
+        {
+            if (InDocumentInfo is { } inDocumentInfo)
+            {
+                return Hash.Combine(
+                    inDocumentInfo.navigationSpan.GetHashCode(),
+                    Hash.CombineValues(inDocumentInfo.spans));
+            }
+
+            var otherDocumentInfo = OtherDocumentInfo!.Value;
+            return Hash.Combine(
+                otherDocumentInfo.navigationSpan.GetHashCode(),
+                otherDocumentInfo.documentId.GetHashCode());
+        }
     }
 }

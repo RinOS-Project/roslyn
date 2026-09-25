@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.NavigationBar;
 
@@ -42,8 +43,19 @@ internal abstract partial class RoslynNavigationBarItem : IEquatable<RoslynNavig
 
     protected internal abstract SerializableNavigationBarItem Dehydrate();
 
-    public abstract override bool Equals(object? obj);
-    public abstract override int GetHashCode();
+        public abstract override bool Equals(object? obj);
+        public abstract override int GetHashCode();
+
+        protected int GetHashCodeCore()
+        {
+            var hashCode = Hash.CombineValues(ChildItems);
+            hashCode = Hash.Combine(Indent, hashCode);
+            hashCode = Hash.Combine(Grayed, hashCode);
+            hashCode = Hash.Combine(Bolded, hashCode);
+            hashCode = Hash.Combine((int)Glyph, hashCode);
+            hashCode = Hash.Combine(Text, hashCode);
+            return Hash.Combine((int)Kind, hashCode);
+        }
 
     public bool Equals(RoslynNavigationBarItem? other)
     {

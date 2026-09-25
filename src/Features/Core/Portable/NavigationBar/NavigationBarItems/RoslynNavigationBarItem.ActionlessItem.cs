@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Immutable;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.NavigationBar;
 
@@ -31,6 +32,6 @@ internal abstract partial class RoslynNavigationBarItem
             => base.Equals(other);
 
         public override int GetHashCode()
-            => throw new NotImplementedException();
+            => GetHashCodeCore();
     }
 }
