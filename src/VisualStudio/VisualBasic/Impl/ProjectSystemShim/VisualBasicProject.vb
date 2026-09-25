@@ -59,11 +59,11 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Property
 
         Public Sub AddApplicationObjectVariable(wszClassName As String, wszMemberName As String) Implements IVbCompilerProject.AddApplicationObjectVariable
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("VBA application object variables are not supported by the Roslyn project system.")
         End Sub
 
         Public Sub AddBuffer(wszBuffer As String, dwLen As Integer, wszMkr As String, itemid As UInteger, fAdvise As Boolean, fShowErrorsInTaskList As Boolean) Implements IVbCompilerProject.AddBuffer
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Legacy in-memory compiler buffers are not supported; add a workspace document instead.")
         End Sub
 
         Public Function AddEmbeddedMetaDataReference(wszFileName As String) As Integer Implements IVbCompilerProject.AddEmbeddedMetaDataReference
@@ -115,7 +115,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Sub
 
         Public Sub AddResourceReference(wszFileName As String, wszName As String, fPublic As Boolean, fEmbed As Boolean) Implements IVbCompilerProject.AddResourceReference
-            ' TODO: implement
+            Throw New NotSupportedException("Resource references are owned by the project-system build configuration.")
         End Sub
 
 #Region "Build Status Callbacks"
@@ -179,7 +179,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Sub
 
         Public Sub DeleteAllResourceReferences() Implements IVbCompilerProject.DeleteAllResourceReferences
-            ' TODO: implement
+            Throw New NotSupportedException("Resource references are owned by the project-system build configuration.")
         End Sub
 
         Public Sub DeleteImport(wszImport As String) Implements IVbCompilerProject.DeleteImport
@@ -191,7 +191,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Function
 
         Public Function GetDefaultReferences(cElements As Integer, ByRef rgbstrReferences() As String, ByVal cActualReferences As IntPtr) As Integer Implements IVbCompilerProject.GetDefaultReferences
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Default reference enumeration is owned by the project-system reference manager.")
         End Function
 
         Public Sub GetEntryPointsList(cItems As Integer, strList() As String, ByVal pcActualItems As IntPtr) Implements IVbCompilerProject.GetEntryPointsList
@@ -236,19 +236,35 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Sub
 
         Public Sub GetMethodFromLine(itemid As UInteger, iLine As Integer, ByRef pBstrProcName As String, ByRef pBstrClassName As String) Implements IVbCompilerProject.GetMethodFromLine
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("Legacy source-line method lookup is not part of the Roslyn project-system contract.")
         End Sub
 
         Public Sub GetPEImage(ByRef ppImage As IntPtr) Implements IVbCompilerProject.GetPEImage
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("The Roslyn project system does not expose an in-memory PE image through IVbCompilerProject.")
         End Sub
 
         Public Sub RemoveAllApplicationObjectVariables() Implements IVbCompilerProject.RemoveAllApplicationObjectVariables
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("VBA application object variables are not supported by the Roslyn project system.")
         End Sub
 
         Public Sub RemoveAllReferences() Implements IVbCompilerProject.RemoveAllReferences
-            Throw New NotImplementedException()
+            Using batchScope = ProjectSystemProject.CreateBatchScope()
+                For Each projectReference In ProjectSystemProject.GetProjectReferences().ToArray()
+                    ProjectSystemProject.RemoveProjectReference(projectReference)
+                Next
+
+                Dim project = Workspace.CurrentSolution.GetProject(ProjectSystemProject.Id)
+                If project IsNot Nothing Then
+                    For Each metadataReference In project.MetadataReferences.OfType(Of PortableExecutableReference)().ToArray()
+                        Dim filePath = metadataReference.FilePath
+                        If filePath IsNot Nothing Then
+                            For Each properties In ProjectSystemProject.GetPropertiesForMetadataReference(filePath)
+                                ProjectSystemProject.RemoveMetadataReference(filePath, properties)
+                            Next
+                        End If
+                    Next
+                End If
+            End Using
         End Sub
 
         Public Shadows Sub RemoveFile(wszFileName As String, itemid As UInteger) Implements IVbCompilerProject.RemoveFile
@@ -256,7 +272,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Sub
 
         Public Sub RemoveFileByName(wszPath As String) Implements IVbCompilerProject.RemoveFileByName
-            Throw New NotImplementedException()
+            MyBase.RemoveFile(wszPath)
         End Sub
 
         Public Shadows Sub RemoveMetaDataReference(wszFileName As String) Implements IVbCompilerProject.RemoveMetaDataReference
@@ -359,7 +375,7 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.ProjectSystemShim
         End Sub
 
         Public Sub SetStreamForPDB(pStreamPDB As IStream) Implements IVbCompilerProject.SetStreamForPDB
-            Throw New NotImplementedException()
+            Throw New NotSupportedException("The Roslyn project system owns PDB emission and does not accept a legacy PDB stream.")
         End Sub
 
         Public Sub StartBuild(pVsOutputWindowPane As IVsOutputWindowPane, fRebuildAll As Boolean) Implements IVbCompilerProject.StartBuild
