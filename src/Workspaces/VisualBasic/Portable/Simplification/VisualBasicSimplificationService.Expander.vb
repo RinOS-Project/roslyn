@@ -558,7 +558,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Simplification
                             Return replacement
                         End If
 
-                        Throw New NotImplementedException()
+                        Throw ExceptionUtilities.UnexpectedValue(replacement.Kind())
                     End If
                 End If
 
@@ -605,7 +605,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Simplification
                             newNode = DirectCast(newNode, SimpleNameSyntax).WithIdentifier(identifier).WithAdditionalAnnotations(Simplifier.Annotation)
 
                         Case Else
-                            Throw New NotImplementedException()
+                            Throw ExceptionUtilities.UnexpectedValue(newNode.Kind)
                     End Select
                 End If
 
