@@ -75,7 +75,24 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 options As LookupOptions,
                 originalBinder As Binder)
 
-            Throw New NotImplementedException()
+            Dim substitutedSourceType = Me.ContainingType
+
+            ' LookupInSingleBinder maps source type parameters to the type arguments
+            ' of the substituted containing type. Keep the same mapping for lookup
+            ' completion, while preserving the source type-parameter names.
+            If substitutedSourceType.Arity > 0 Then
+                Dim typeParameters = substitutedSourceType.TypeParameters
+                Dim typeArguments = substitutedSourceType.TypeArgumentsNoUseSiteDiagnostics
+
+                For i As Integer = 0 To typeParameters.Length - 1
+                    Dim typeParameter = typeParameters(i)
+                    If originalBinder.CanAddLookupSymbolInfo(typeParameter, options, nameSet, Nothing) Then
+                        nameSet.AddSymbol(typeArguments(i), typeParameter.Name, 0)
+                    End If
+                Next
+            End If
+
+            originalBinder.AddMemberLookupSymbolsInfo(nameSet, substitutedSourceType, options)
         End Sub
 
         Protected Overrides Sub CollectProbableExtensionMethodsInSingleBinder(
