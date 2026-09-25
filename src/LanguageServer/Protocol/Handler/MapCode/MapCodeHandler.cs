@@ -36,10 +36,9 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
     {
         Contract.ThrowIfNull(context.Solution);
 
-        //TODO: handle request.Updates if not empty
         if (request.Updates is not null)
         {
-            throw new NotImplementedException("mapCode Request failed: additional workspace 'Update' is currently not supported");
+            throw new NotSupportedException("mapCode requests containing additional workspace updates are not supported.");
         }
 
         using var _ = PooledDictionary<DocumentUri, LSP.TextEdit[]>.GetInstance(out var uriToEditsMap);

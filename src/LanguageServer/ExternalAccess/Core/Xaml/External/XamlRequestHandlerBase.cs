@@ -29,5 +29,6 @@ internal abstract class XamlRequestHandlerBase<TRequest, TResponse> : ILspServic
     public abstract Uri GetTextDocumentUri(TRequest request);
 
     public Task<TResponse> HandleRequestAsync(TRequest request, RequestContext context, CancellationToken cancellationToken)
-        => _xamlRequestHandler?.HandleRequestAsync(request, XamlRequestContext.FromRequestContext(context), cancellationToken) ?? throw new NotImplementedException();
+        => _xamlRequestHandler?.HandleRequestAsync(request, XamlRequestContext.FromRequestContext(context), cancellationToken)
+            ?? throw new NotSupportedException("XAML request handling is unavailable because no external XAML handler was provided.");
 }
