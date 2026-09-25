@@ -302,7 +302,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                         throw new InvalidOperationException($"mapCode create file target already exists: {documentUri}");
                     }
 
-                    currentSolution = currentSolution.RemoveDocuments(existingDocumentIds);
+                    currentSolution = RemoveTextDocuments(currentSolution, existingDocumentIds);
                 }
 
                 if (documentUri.ParsedUri?.IsFile is not true)
@@ -345,7 +345,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                         throw new InvalidOperationException($"mapCode rename file target already exists: {renameFile.NewDocumentUri}");
                     }
 
-                    currentSolution = currentSolution.RemoveDocuments(targetDocumentIds);
+                    currentSolution = RemoveTextDocuments(currentSolution, targetDocumentIds);
                 }
 
                 if (renameFile.NewDocumentUri.ParsedUri?.IsFile is not true)
@@ -361,7 +361,12 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
 
                 foreach (var documentId in oldDocumentIds)
                 {
-                    var document = currentSolution.GetRequiredDocument(documentId);
+                    if (currentSolution.GetDocument(documentId) is not { } document)
+                    {
+                        throw new NotSupportedException(
+                            "mapCode rename file currently supports regular documents only; additional and analyzer-config documents cannot be renamed in Solution.");
+                    }
+
                     currentSolution = currentSolution
                         .WithDocumentName(documentId, newName)
                         .WithDocumentFolders(documentId, GetFolders(document.Project, newFilePath))
@@ -384,7 +389,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                     }
 
                     if (!documentIds.IsEmpty)
-                        return currentSolution.RemoveDocuments(documentIds);
+                        return RemoveTextDocuments(currentSolution, documentIds);
 
                     if (deleteFile.Options?.IgnoreIfNotExists is true)
                         return currentSolution;
@@ -392,7 +397,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                     throw new ArgumentException($"mapCode delete file target does not exist: {deleteFile.DocumentUri}");
                 }
 
-                return currentSolution.RemoveDocuments(documentIds);
+                return RemoveTextDocuments(currentSolution, documentIds);
             }
 
             static ImmutableArray<DocumentId> GetDocumentIdsUnderDirectory(Solution currentSolution, string directoryPath)
@@ -400,15 +405,30 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                 using var _ = ArrayBuilder<DocumentId>.GetInstance(out var documentIds);
                 foreach (var project in currentSolution.Projects)
                 {
-                    foreach (var documentId in project.DocumentIds)
+                    foreach (var document in project.Documents.Concat(project.AdditionalDocuments).Concat(project.AnalyzerConfigDocuments))
                     {
-                        var document = currentSolution.GetRequiredDocument(documentId);
                         if (document.FilePath is { } filePath && IsPathUnderDirectory(filePath, directoryPath))
-                            documentIds.Add(documentId);
+                            documentIds.Add(document.Id);
                     }
                 }
 
                 return documentIds.ToImmutableAndClear();
+            }
+
+            static Solution RemoveTextDocuments(Solution currentSolution, ImmutableArray<DocumentId> documentIds)
+            {
+                var documentIdsToRemove = documentIds.Where(documentId => currentSolution.GetDocument(documentId) is not null).ToImmutableArray();
+                var additionalDocumentIdsToRemove = documentIds.Where(documentId => currentSolution.GetAdditionalDocument(documentId) is not null).ToImmutableArray();
+                var analyzerConfigDocumentIdsToRemove = documentIds.Where(documentId => currentSolution.GetAnalyzerConfigDocument(documentId) is not null).ToImmutableArray();
+
+                if (!documentIdsToRemove.IsEmpty)
+                    currentSolution = currentSolution.RemoveDocuments(documentIdsToRemove);
+                if (!additionalDocumentIdsToRemove.IsEmpty)
+                    currentSolution = currentSolution.RemoveAdditionalDocuments(additionalDocumentIdsToRemove);
+                if (!analyzerConfigDocumentIdsToRemove.IsEmpty)
+                    currentSolution = currentSolution.RemoveAnalyzerConfigDocuments(analyzerConfigDocumentIdsToRemove);
+
+                return currentSolution;
             }
 
             static Project FindProjectForFilePath(Solution currentSolution, string filePath)
