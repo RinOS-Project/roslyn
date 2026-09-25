@@ -46,8 +46,20 @@ internal sealed partial class ItemManager : IAsyncCompletionItemManager2
         AsyncCompletionSessionInitialDataSnapshot data,
         CancellationToken cancellationToken)
     {
-        // Platform prefers IAsyncCompletionItemManager2.SortCompletionItemListAsync when available
-        throw new NotImplementedException();
+        var stopwatch = SharedStopwatch.StartNew();
+        var list = s_sortListPool.Allocate();
+
+        try
+        {
+            SortCompletionItems(list, data, cancellationToken);
+            return Task.FromResult(list.ToImmutableArray());
+        }
+        finally
+        {
+            list.Clear();
+            s_sortListPool.Free(list);
+            AsyncCompletionLogger.LogItemManagerSortTicksDataPoint(stopwatch.Elapsed);
+        }
     }
 
     public async Task<CompletionList<VSCompletionItem>> SortCompletionItemListAsync(
