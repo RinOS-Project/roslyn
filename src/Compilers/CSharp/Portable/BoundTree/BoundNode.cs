@@ -384,7 +384,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public virtual BoundNode? Accept(BoundTreeVisitor visitor)
         {
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         /// <summary>

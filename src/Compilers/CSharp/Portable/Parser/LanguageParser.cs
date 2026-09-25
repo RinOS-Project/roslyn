@@ -12017,7 +12017,7 @@ done:
                     case SyntaxKind.InterpolatedVerbatimStringStartToken:
                     case SyntaxKind.InterpolatedSingleLineRawStringStartToken:
                     case SyntaxKind.InterpolatedMultiLineRawStringStartToken:
-                        throw new NotImplementedException(); // this should not occur because these tokens are produced and parsed immediately
+                        throw ExceptionUtilities.UnexpectedValue(tk.Kind); // this should not occur because these tokens are produced and parsed immediately
                     case SyntaxKind.InterpolatedStringToken:
                         return this.ParseInterpolatedStringToken();
                     case SyntaxKind.SingleLineRawStringLiteralToken:
