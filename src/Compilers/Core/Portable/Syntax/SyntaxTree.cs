@@ -406,7 +406,9 @@ namespace Microsoft.CodeAnalysis
         [Obsolete("Obsolete due to performance problems, use CompilationOptions.SyntaxTreeOptionsProvider instead", error: false)]
         public virtual SyntaxTree WithDiagnosticOptions(ImmutableDictionary<string, ReportDiagnostic> options)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException(
+                "Diagnostic options must be supplied by a language-specific SyntaxTree implementation; " +
+                "use CompilationOptions.SyntaxTreeOptionsProvider instead.");
         }
 
         /// <summary>
