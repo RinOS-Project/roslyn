@@ -100,7 +100,7 @@ internal sealed partial class SuggestedActionsSourceProvider
             CancellationToken cancellationToken)
         {
             // We implement GetSuggestedActionCategoriesAsync so this should not be called
-            throw new NotImplementedException($"We implement {nameof(GetSuggestedActionCategoriesAsync)}. This should not be called.");
+            throw new NotSupportedException($"We implement {nameof(GetSuggestedActionCategoriesAsync)}. This should not be called.");
         }
 
         private TextSpan? TryGetCodeRefactoringSelection(ReferenceCountedDisposable<State> state, SnapshotSpan range)

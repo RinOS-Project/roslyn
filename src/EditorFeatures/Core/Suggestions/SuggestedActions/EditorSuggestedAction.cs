@@ -84,7 +84,7 @@ internal abstract partial class EditorSuggestedAction(
 
     public void Invoke(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException("Invoke(CancellationToken) is no longer supported. Use Invoke(IUIThreadOperationContext) instead.");
+        throw new NotSupportedException("Invoke(CancellationToken) is no longer supported. Use Invoke(IUIThreadOperationContext) instead.");
     }
 
     public void Invoke(IUIThreadOperationContext context)
