@@ -33,5 +33,14 @@ internal sealed class ProjectCone : IEquatable<ProjectCone>
         => other is not null && this.RootProjectId == other.RootProjectId && this.ProjectIds.SetEquals(other.ProjectIds);
 
     public override int GetHashCode()
-        => throw new NotImplementedException();
+    {
+        // ProjectIds is a set, so the collection contribution must not depend on
+        // enumeration order.  XOR is commutative and preserves the equality
+        // contract without sorting the project IDs on every hash lookup.
+        var projectIdsHash = 0;
+        foreach (var projectId in ProjectIds)
+            projectIdsHash ^= projectId.GetHashCode();
+
+        return Hash.Combine(RootProjectId, projectIdsHash);
+    }
 }
