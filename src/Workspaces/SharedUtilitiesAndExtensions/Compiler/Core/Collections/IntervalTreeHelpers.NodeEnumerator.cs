@@ -83,7 +83,11 @@ internal static partial class IntervalTreeHelpers<T, TIntervalTree, TNode, TInte
         public readonly void Dispose()
             => _pooledStack.Dispose();
 
-        public readonly void Reset()
-            => throw new System.NotImplementedException();
+        public void Reset()
+        {
+            _stack?.Clear();
+            _started = false;
+            _currentNodeHasValue = default(TIntervalTreeWitness).TryGetRoot(_tree, out _currentNode);
+        }
     }
 }
