@@ -24,6 +24,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Microsoft.CodeAnalysis.ReleaseTracking;
 using Microsoft.CodeAnalysis.Text;
+using Roslyn.Utilities;
 using static GenerateDocumentationAndConfigFiles.CommonPropertyNames;
 
 namespace GenerateDocumentationAndConfigFiles
@@ -1592,7 +1593,7 @@ namespace GenerateDocumentationAndConfigFiles
                 DiagnosticSeverity.Warning => "warning",
                 DiagnosticSeverity.Info => "suggestion",
                 DiagnosticSeverity.Hidden => "silent",
-                _ => throw new NotImplementedException(severity.Value.ToString()),
+                _ => throw ExceptionUtilities.UnexpectedValue(severity.Value),
             };
         }
 

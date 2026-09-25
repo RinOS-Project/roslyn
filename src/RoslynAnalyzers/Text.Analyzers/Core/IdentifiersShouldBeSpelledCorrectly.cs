@@ -498,7 +498,7 @@ namespace Text.Analyzers
                     ? symbol.CreateDiagnostic(MethodTypeParameterRule, symbol.ContainingSymbol.ToDisplayString(), misspelledWord, symbol.Name)
                     : symbol.CreateDiagnostic(TypeTypeParameterRule, symbol.ContainingSymbol.ToDisplayString(), misspelledWord, symbol.Name),
                 SymbolKind.Local => symbol.CreateDiagnostic(VariableRule, misspelledWord, symbol.ToDisplayString()),
-                _ => throw new NotImplementedException($"Unknown SymbolKind: {symbol.Kind}"),
+                _ => throw ExceptionUtilities.UnexpectedValue(symbol.Kind),
             };
         }
 
@@ -517,7 +517,7 @@ namespace Text.Analyzers
                 SymbolKind.TypeParameter => symbol.ContainingSymbol.Kind == SymbolKind.Method
                     ? symbol.CreateDiagnostic(MethodTypeParameterMoreMeaningfulNameRule, symbol.ContainingSymbol.ToDisplayString(), symbol.Name)
                     : symbol.CreateDiagnostic(TypeTypeParameterMoreMeaningfulNameRule, symbol.ContainingSymbol.ToDisplayString(), symbol.Name),
-                _ => throw new NotImplementedException($"Unknown SymbolKind: {symbol.Kind}"),
+                _ => throw ExceptionUtilities.UnexpectedValue(symbol.Kind),
             };
         }
     }

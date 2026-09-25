@@ -238,7 +238,7 @@ namespace Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.Fixers
                             break;
 
                         default:
-                            throw new NotImplementedException();
+                            throw ExceptionUtilities.UnexpectedValue(entry);
                     }
                 }
             }

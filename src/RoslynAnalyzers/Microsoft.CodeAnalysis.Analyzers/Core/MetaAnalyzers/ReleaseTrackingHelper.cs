@@ -274,7 +274,7 @@ namespace Microsoft.CodeAnalysis.ReleaseTracking
                     ReleaseTrackingRuleEntryKind.New => parts.Length > 4,
                     ReleaseTrackingRuleEntryKind.Removed => parts.Length > 4,
                     ReleaseTrackingRuleEntryKind.Changed => parts.Length <= 4,
-                    _ => throw new NotImplementedException()
+                    _ => throw ExceptionUtilities.UnexpectedValue(currentRuleEntryKind)
                 };
             }
 

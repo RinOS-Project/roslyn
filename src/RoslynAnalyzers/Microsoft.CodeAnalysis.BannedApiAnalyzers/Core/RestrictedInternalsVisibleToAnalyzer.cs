@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Shared.Utilities;
+using Roslyn.Utilities;
 using DiagnosticIds = Roslyn.Diagnostics.Analyzers.RoslynDiagnosticIds;
 
 namespace Microsoft.CodeAnalysis.BannedApiAnalyzers
@@ -95,7 +96,7 @@ namespace Microsoft.CodeAnalysis.BannedApiAnalyzers
                         IUnaryOperation unary => unary.OperatorMethod,
                         IBinaryOperation binary => binary.OperatorMethod,
                         IIncrementOrDecrementOperation incrementOrDecrement => incrementOrDecrement.OperatorMethod,
-                        _ => throw new NotImplementedException($"Unhandled OperationKind: {context.Operation.Kind}"),
+                        _ => throw ExceptionUtilities.UnexpectedValue(context.Operation.Kind),
                     };
 
                     VerifySymbol(symbol, context.Operation.Syntax,

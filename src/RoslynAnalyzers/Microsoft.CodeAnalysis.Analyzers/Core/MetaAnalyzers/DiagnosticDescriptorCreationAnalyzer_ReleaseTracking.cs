@@ -228,7 +228,7 @@ namespace Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers
 
                     // Analyzer release file '{0}' has an invalid entry '{1}'.
                     InvalidEntryKind.Other => InvalidEntryInAnalyzerReleasesFileRule,
-                    _ => throw new NotImplementedException(),
+                    _ => throw ExceptionUtilities.UnexpectedValue(invalidEntryKind),
                 };
 
                 string arg1 = Path.GetFileName(path);
