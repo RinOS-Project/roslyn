@@ -98,7 +98,30 @@ namespace Analyzer.Utilities.PooledObjects
         /// </summary>
         public bool Contains(T item) => _dictionary.ContainsKey(item);
 
-        public void CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            ArgumentNullException.ThrowIfNull(array);
+
+            if ((uint)arrayIndex > (uint)array.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            }
+
+            if (array.Length - arrayIndex < Count)
+            {
+                throw new ArgumentException("The destination array does not have enough space.", nameof(array));
+            }
+
+            foreach (var item in this)
+            {
+                if (arrayIndex == array.Length)
+                {
+                    throw new ArgumentException("The collection changed while copying.", nameof(array));
+                }
+
+                array[arrayIndex++] = item;
+            }
+        }
 
         /// <summary>
         /// Obtain an enumerator that iterates through the elements in the set.
