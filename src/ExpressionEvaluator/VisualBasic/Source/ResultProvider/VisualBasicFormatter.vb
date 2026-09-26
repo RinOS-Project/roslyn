@@ -4,6 +4,7 @@
 
 Imports System.Collections.ObjectModel
 Imports Microsoft.CodeAnalysis.ExpressionEvaluator
+Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Microsoft.VisualStudio.Debugger.Evaluation.ClrCompilation
 Imports Microsoft.VisualStudio.Debugger.Metadata
 
@@ -48,13 +49,37 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Return RemoveLeadingAndTrailingWhitespace(expression)
         End Function
 
-        ' TODO https://github.com/dotnet/roslyn/issues/60581
         Friend Overrides Function GetOriginalLocalVariableName(name As String) As String
+            Dim originalName As String = Nothing
+            If GeneratedNameParser.TryParseHoistedUserVariableName(name, originalName) Then
+                Return originalName
+            End If
+
+            Dim slotIndex As Integer
+            If GeneratedNameParser.TryParseStateMachineHoistedUserVariableOrDisplayClassName(name, originalName, slotIndex) Then
+                Return originalName
+            End If
+
             Return name
         End Function
 
-        ' TODO Implement this VB. https://github.com/dotnet/roslyn/issues/60581
         Friend Overrides Function GetOriginalFieldName(name As String) As String
+            Dim originalName As String = Nothing
+            If GeneratedNameParser.TryParseHoistedUserVariableName(name, originalName) Then
+                Return originalName
+            End If
+
+            Dim slotIndex As Integer
+            If GeneratedNameParser.TryParseStateMachineHoistedUserVariableOrDisplayClassName(name, originalName, slotIndex) Then
+                Return originalName
+            End If
+
+            Dim methodName As String = Nothing
+            Dim methodSignature As String = Nothing
+            If GeneratedNameParser.TryParseStaticLocalFieldName(name, methodName, methodSignature, originalName) Then
+                Return originalName
+            End If
+
             Return name
         End Function
 
