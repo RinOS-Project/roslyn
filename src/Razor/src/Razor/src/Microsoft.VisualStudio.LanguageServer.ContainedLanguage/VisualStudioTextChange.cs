@@ -9,9 +9,12 @@ namespace Microsoft.VisualStudio.LanguageServer.ContainedLanguage;
 
 internal class VisualStudioTextChange : ITextChange
 {
+    private readonly string _oldText;
+
     public VisualStudioTextChange(int oldStart, int oldLength, string newText)
     {
         OldSpan = new Span(oldStart, oldLength);
+        _oldText = string.Empty;
         NewText = newText;
     }
 
@@ -34,6 +37,7 @@ internal class VisualStudioTextChange : ITextChange
         var endAbsoluteIndex = endLine.Start + endCharacter;
         var length = endAbsoluteIndex - startAbsoluteIndex;
         OldSpan = new Span(startAbsoluteIndex, length);
+        _oldText = textSnapshot.GetText(OldSpan);
         NewText = newText;
     }
 
@@ -44,13 +48,27 @@ internal class VisualStudioTextChange : ITextChange
     public string NewText { get; }
     public int NewLength => NewText.Length;
 
-    public Span NewSpan => throw new NotImplementedException();
+    public Span NewSpan => new(NewPosition, NewLength);
 
-    public int NewPosition => throw new NotImplementedException();
-    public int Delta => throw new NotImplementedException();
-    public int NewEnd => throw new NotImplementedException();
-    public string OldText => throw new NotImplementedException();
-    public int LineCountDelta => throw new NotImplementedException();
+    public int NewPosition => OldPosition;
+    public int Delta => NewLength - OldLength;
+    public int NewEnd => NewPosition + NewLength;
+    public string OldText => _oldText;
+    public int LineCountDelta => CountLines(NewText) - CountLines(OldText);
+
+    private static int CountLines(string text)
+    {
+        var count = 0;
+        foreach (var character in text)
+        {
+            if (character == '\n')
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 
     public override string ToString()
     {

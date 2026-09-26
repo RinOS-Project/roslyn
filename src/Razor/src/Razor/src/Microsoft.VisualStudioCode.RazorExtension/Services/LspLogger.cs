@@ -16,7 +16,7 @@ internal class LspLogger(string categoryName, RazorClientServerManagerProvider r
     private readonly string _categoryName = categoryName;
     private readonly RazorClientServerManagerProvider _razorClientServerManagerProvider = razorClientServerManagerProvider;
 
-    public bool IsEnabled(LogLevel logLevel) => true;
+    public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
 
     public void Log(LogLevel logLevel, string message, Exception? exception)
     {
@@ -38,7 +38,8 @@ internal class LspLogger(string categoryName, RazorClientServerManagerProvider r
             LogLevel.Information => MessageType.Info,
             LogLevel.Debug => MessageType.Debug,
             LogLevel.Trace => MessageType.Debug,
-            _ => throw new NotImplementedException(),
+            // Unknown values should not take down the language server while logging.
+            _ => MessageType.Debug,
         };
 
         var formattedMessage = LogMessageFormatter.FormatMessage(message, _categoryName, exception, includeTimeStamp: false);

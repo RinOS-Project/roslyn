@@ -31,8 +31,10 @@ internal abstract class LSPDocumentSynchronizer : LSPDocumentChangeListener
         CancellationToken cancellationToken)
         where TVirtualDocumentSnapshot : VirtualDocumentSnapshot
     {
-        // This is only virtual to prevent a binary breaking change. We don't expect anyone to call this method, without also implementing it
-        throw new NotImplementedException();
+        // This is only virtual to prevent a binary breaking change. The virtual-document URI
+        // cannot be ignored when a host has more than one generated document.
+        throw new NotSupportedException(
+            "The virtual-document URI synchronization overload must be overridden by the synchronizer.");
     }
 
     [Obsolete]
@@ -51,7 +53,5 @@ internal abstract class LSPDocumentSynchronizer : LSPDocumentChangeListener
     /// <returns><c>true</c> if we were able to successfully synchronize; <c>false</c> otherwise.</returns>
     [Obsolete]
     public virtual Task<bool> TrySynchronizeVirtualDocumentAsync(int requiredHostDocumentVersion, VirtualDocumentSnapshot virtualDocument, bool rejectOnNewerParallelRequest, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
+        => TrySynchronizeVirtualDocumentAsync(requiredHostDocumentVersion, virtualDocument, cancellationToken);
 }

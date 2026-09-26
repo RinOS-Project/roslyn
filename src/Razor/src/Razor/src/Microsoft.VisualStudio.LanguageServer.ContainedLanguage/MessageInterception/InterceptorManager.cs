@@ -28,6 +28,7 @@ public abstract class InterceptorManager
 
     public virtual Task<TJsonToken?> ProcessGenericInterceptorsAsync<TJsonToken>(string methodName, TJsonToken message, string contentType, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException("When providing a custom InterceptorManager and calling ProcessGenericInterceptorsAsync, you must also provide the implementation.");
+        throw new NotSupportedException(
+            "A custom InterceptorManager must override ProcessGenericInterceptorsAsync.");
     }
 }

@@ -47,12 +47,12 @@ internal sealed class ComponentNodeWriter : IntermediateNodeWriter, ITemplateTar
 
     public sealed override void BeginWriterScope(CodeRenderingContext context, string writer)
     {
-        throw new NotImplementedException(nameof(BeginWriterScope));
+        base.BeginWriterScope(context, writer);
     }
 
     public sealed override void EndWriterScope(CodeRenderingContext context)
     {
-        throw new NotImplementedException(nameof(EndWriterScope));
+        base.EndWriterScope(context);
     }
 
     public sealed override void WriteCSharpCodeAttributeValue(CodeRenderingContext context, CSharpCodeAttributeValueIntermediateNode node)

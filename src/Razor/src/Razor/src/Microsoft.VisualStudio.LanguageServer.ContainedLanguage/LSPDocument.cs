@@ -29,8 +29,10 @@ public abstract class LSPDocument : IDisposable
 
     public virtual LSPDocumentSnapshot UpdateVirtualDocument<TVirtualDocument>(TVirtualDocument virtualDocument, IReadOnlyList<ITextChange> changes, int hostDocumentVersion, object? state) where TVirtualDocument : VirtualDocument
     {
-        // This is only virtual to prevent a binary breaking change. We don't expect anyone to call this method, without also implementing it
-        throw new NotImplementedException();
+        // This is only virtual to prevent a binary breaking change. The base document cannot
+        // select a virtual document implementation, so derived documents must override it.
+        throw new NotSupportedException(
+            "The legacy UpdateVirtualDocument overload must be overridden by the document.");
     }
 
     public bool TryGetVirtualDocument<TVirtualDocument>([NotNullWhen(returnValue: true)] out TVirtualDocument? virtualDocument) where TVirtualDocument : VirtualDocument

@@ -512,7 +512,8 @@ internal sealed class SemanticTokensVisitor : SyntaxWalker
         }
         else
         {
-            throw new NotImplementedException();
+            // Only tag-helper nodes and their attributes can represent components.
+            return false;
         }
     }
 
