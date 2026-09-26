@@ -11,7 +11,7 @@ namespace Microsoft.CodeAnalysis.Scripting.Hosting
 {
     internal static class CommandLineHelpers
     {
-        // TODO (https://github.com/dotnet/roslyn/issues/5854): remove 
+        // The language-specific compilation options provide the source-form imports.
         public static ImmutableArray<string> GetImports(CommandLineArguments args)
         {
             return args.CompilationOptions.GetImports();
