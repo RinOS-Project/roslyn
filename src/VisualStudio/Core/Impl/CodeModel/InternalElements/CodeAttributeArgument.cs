@@ -103,7 +103,7 @@ public sealed class CodeAttributeArgument : AbstractCodeElement, EnvDTE80.CodeAt
 
         set
         {
-            throw new NotImplementedException();
+            throw Exceptions.ThrowENotImpl();
         }
     }
 

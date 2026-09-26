@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel.Interop;
+using Microsoft.VisualStudio.LanguageServices.Implementation.Utilities;
 
 namespace Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel.Collections;
 
@@ -69,10 +70,10 @@ public abstract class AbstractCodeElementCollection : AbstractCodeModelObject, I
     }
 
     public bool CreateUniqueID(string prefix, ref string newName)
-        => throw new NotImplementedException();
+        => throw Exceptions.ThrowENotImpl();
 
     public void Reserved1(object element)
-        => throw new NotImplementedException();
+        => throw Exceptions.ThrowENotImpl();
 
     public virtual System.Collections.IEnumerator GetEnumerator()
         => Enumerator.Create(CreateSnapshot());

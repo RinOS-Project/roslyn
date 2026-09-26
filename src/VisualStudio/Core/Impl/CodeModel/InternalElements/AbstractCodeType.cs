@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel.Collections;
 using Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel.Interop;
 using Microsoft.VisualStudio.LanguageServices.Implementation.Interop;
+using Microsoft.VisualStudio.LanguageServices.Implementation.Utilities;
 
 namespace Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel.InternalElements;
 
@@ -103,7 +104,7 @@ public abstract class AbstractCodeType : AbstractCodeMember, EnvDTE.CodeType
 
     public EnvDTE.CodeElements DerivedTypes
     {
-        get { throw new NotImplementedException(); }
+        get { throw Exceptions.ThrowENotImpl(); }
     }
 
     public EnvDTE.CodeElements ImplementedInterfaces

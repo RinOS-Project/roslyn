@@ -139,8 +139,7 @@ public sealed partial class CodeEvent : AbstractCodeMember, EnvDTE80.CodeEvent
 
         set
         {
-            // TODO: C# throws E_FAIL but VB throws E_NOTIMPL.
-            throw new NotImplementedException();
+            throw Exceptions.ThrowEFail();
         }
     }
 

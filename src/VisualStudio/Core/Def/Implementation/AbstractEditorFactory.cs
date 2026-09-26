@@ -177,15 +177,12 @@ internal abstract class AbstractEditorFactory(IComponentModel componentModel) : 
 
     public object GetDocumentView(uint grfCreate, string pszPhysicalView, IVsHierarchy pHier, IntPtr punkDocData, uint itemid)
     {
-        // There is no scenario need currently to implement this method.
-        throw new NotImplementedException();
+        throw new NotSupportedException("The Roslyn editor factory does not expose designer document views.");
     }
 
     public string GetEditorCaption(string pszMkDocument, string pszPhysicalView, IVsHierarchy pHier, IntPtr punkDocData, out Guid pguidCmdUI)
     {
-        // It is not possible to get this information without initializing the designer.
-        // There is no other scenario need currently to implement this method.
-        throw new NotImplementedException();
+        throw new NotSupportedException("The Roslyn editor factory does not expose designer editor captions.");
     }
 
     public bool ShouldDeferUntilIntellisenseIsReady(uint grfCreate, string pszMkDocument, string pszPhysicalView)

@@ -21,6 +21,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Outlining;
+using Roslyn.Utilities;
 using InternalUtilities = Microsoft.Internal.VisualStudio.PlatformUI.Utilities;
 using IOleCommandTarget = Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget;
 using OLECMD = Microsoft.VisualStudio.OLE.Interop.OLECMD;
@@ -248,7 +249,7 @@ internal sealed partial class DocumentOutlineView : UserControl, IOleCommandTarg
                 SortOption.Name => FunctionId.DocumentOutline_SortByName,
                 SortOption.Location => FunctionId.DocumentOutline_SortByOrder,
                 SortOption.Type => FunctionId.DocumentOutline_SortByType,
-                _ => throw new NotImplementedException(),
+                _ => throw ExceptionUtilities.UnexpectedValue(sortOption),
             }, logLevel: LogLevel.Information);
 
             _globalOptionService.SetGlobalOption(DocumentOutlineOptionsStorage.DocumentOutlineSortOrder, sortOption);
