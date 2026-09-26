@@ -24,6 +24,7 @@ internal sealed partial class DebuggerTextView : IWpfTextView, IDebuggerTextView
     /// </summary>
     private readonly IWpfTextView _innerTextView;
     private readonly IVsTextLines _debuggerTextLinesOpt;
+    private readonly HACK_CompletionSession _hackCompletionSession;
 
     // This name "CompletionRoot" is specified on the Editor side.
     // Roslyn must match the name.
@@ -38,6 +39,7 @@ internal sealed partial class DebuggerTextView : IWpfTextView, IDebuggerTextView
     {
         _innerTextView = innerTextView;
         _debuggerTextLinesOpt = debuggerTextLinesOpt;
+        _hackCompletionSession = new HACK_CompletionSession(innerTextView);
         BufferGraph = bufferGraph;
         IsImmediateWindow = isImmediateWindow;
 

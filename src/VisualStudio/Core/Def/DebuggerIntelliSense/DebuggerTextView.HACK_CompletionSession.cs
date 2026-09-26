@@ -19,7 +19,6 @@ internal sealed partial class DebuggerTextView
 {
     // HACK HACK HACK HACK HACK: We'll use this fake ICompletionSession to trick them into
     // routing commands to us for both completion and sighelp
-    private readonly HACK_CompletionSession _hackCompletionSession = new();
 
     public void HACK_StartCompletionSession(IIntellisenseSession editorSessionOpt)
     {
@@ -69,8 +68,8 @@ internal sealed partial class DebuggerTextView
     /// the CompletionSessionShim an ICompletionSession, though, we still get the commands and our
     /// command handlers can deal with them appropriately. To get commands when only our
     /// SignatureHelp is up, we still must provide an ICompletionSession, which this class provides. 
-    /// Note: Any calls to methods in this class will throw, since the completion shims should not
-    /// be doing anything.
+    /// Note: The completion shims should not be doing anything. The unused members therefore
+    /// expose inert defaults rather than throwing when a host probes the session.
     /// 
     /// We also include a counter so that we can null out the field when all of our sessions have
     /// actually ended.
@@ -79,10 +78,20 @@ internal sealed partial class DebuggerTextView
     /// </remarks>
     internal sealed class HACK_CompletionSession : ICompletionSession
     {
+        private static readonly ReadOnlyObservableCollection<CompletionSet> s_emptyCompletionSets =
+            new(new ObservableCollection<CompletionSet>());
+        private readonly ITextView _textView;
+
+        public HACK_CompletionSession(ITextView textView)
+        {
+            _textView = textView;
+        }
+
         public int Count = 0;
 
         public void Commit()
-            => throw new NotImplementedException();
+        {
+        }
 
         // We've got a bunch of unused events, so disable the unused event warning.
 #pragma warning disable 67
@@ -90,32 +99,28 @@ internal sealed partial class DebuggerTextView
 
         public ReadOnlyObservableCollection<CompletionSet> CompletionSets
         {
-            get { throw new NotImplementedException(); }
+            get { return s_emptyCompletionSets; }
         }
 
         public void Filter()
-            => throw new NotImplementedException();
-
-        public bool IsStarted
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
         }
+
+        public bool IsStarted => false;
 
         public CompletionSet SelectedCompletionSet
         {
             // To prevent them trying to commit, we need to pretend there's nothing actually
             // selected.
             get { return null; }
-            set { throw new NotImplementedException(); }
+            set { }
         }
 
         public event EventHandler<ValueChangedEventArgs<CompletionSet>> SelectedCompletionSetChanged;
 
         public void Collapse()
-            => throw new NotImplementedException();
+        {
+        }
 
         public void Dismiss()
         {
@@ -125,10 +130,10 @@ internal sealed partial class DebuggerTextView
         public event EventHandler Dismissed;
 
         public SnapshotPoint? GetTriggerPoint(ITextSnapshot textSnapshot)
-            => throw new NotImplementedException();
+            => null;
 
         public ITrackingPoint GetTriggerPoint(ITextBuffer textBuffer)
-            => throw new NotImplementedException();
+            => null;
 
         // The shim controller actually does check IsDismissed immediately after checking for a
         // session, so this implementation can't throw. 
@@ -138,34 +143,24 @@ internal sealed partial class DebuggerTextView
         }
 
         public bool Match()
-            => throw new NotImplementedException();
+            => false;
 
-        public IIntellisensePresenter Presenter
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IIntellisensePresenter Presenter => null;
 
         public event EventHandler PresenterChanged;
 
         public void Recalculate()
-            => throw new NotImplementedException();
+        {
+        }
 
         public event EventHandler Recalculated;
 
         public void Start()
-            => throw new NotImplementedException();
-
-        public ITextView TextView
         {
-            get { throw new NotImplementedException(); }
         }
 
-        public PropertyCollection Properties
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public ITextView TextView => _textView;
+
+        public PropertyCollection Properties => _textView.Properties;
     }
 }
