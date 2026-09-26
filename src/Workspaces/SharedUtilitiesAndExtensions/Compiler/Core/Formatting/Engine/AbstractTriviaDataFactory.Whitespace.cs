@@ -84,6 +84,6 @@ internal abstract partial class AbstractTriviaDataFactory
         }
 
         public override IEnumerable<TextChange> GetTextChanges(TextSpan span)
-            => throw new NotImplementedException();
+            => Array.Empty<TextChange>();
     }
 }
