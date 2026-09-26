@@ -114,7 +114,11 @@ internal sealed partial class PackageInstallerService
         }
 
         public void GetUnitType(out Guid pClsid, out int plID)
-            => throw new NotImplementedException();
+        {
+            // Package installer undo units are private Roslyn actions, not registered VS undo types.
+            pClsid = Guid.Empty;
+            plID = 0;
+        }
 
         public void OnNextAdd()
         {

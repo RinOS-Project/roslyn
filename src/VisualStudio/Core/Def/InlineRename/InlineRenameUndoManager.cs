@@ -56,7 +56,11 @@ internal sealed class VisualStudioInlineRenameUndoManagerServiceFactory(
                 => pBstr = _description;
 
             public void GetUnitType(out Guid pClsid, [ComAliasName("Microsoft.VisualStudio.OLE.Interop.LONG")] out int plID)
-                => throw new NotImplementedException();
+            {
+                // Inline rename undo units are private text-buffer primitives, not registered VS undo types.
+                pClsid = Guid.Empty;
+                plID = 0;
+            }
 
             public void OnNextAdd()
             {

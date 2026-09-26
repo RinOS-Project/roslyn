@@ -13,6 +13,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Roslyn.Utilities;
 using Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel;
 
 namespace Microsoft.VisualStudio.LanguageServices.CSharp.CodeModel;
@@ -264,7 +265,7 @@ internal sealed partial class CSharpCodeModelService
                 return CompareEnumMemberDeclarations(enumMember, (EnumMemberDeclarationSyntax)newMember, newNodeParent, eventQueue);
             }
 
-            throw new NotImplementedException();
+            throw ExceptionUtilities.UnexpectedValue(oldMember.Kind());
         }
 
         private bool CompareEnumMemberDeclarations(

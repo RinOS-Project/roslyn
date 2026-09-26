@@ -298,7 +298,7 @@ internal sealed partial class DebuggerTextView : IWpfTextView, IDebuggerTextView
         }
     }
 
-    public bool InOuterLayout => throw new NotImplementedException();
+    public bool InOuterLayout => false;
 
     public IMultiSelectionBroker MultiSelectionBroker
     {

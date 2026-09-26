@@ -27,7 +27,11 @@ internal partial class VisualStudioWorkspaceImpl
         public abstract void GetDescription(out string pBstr);
 
         public void GetUnitType(out Guid pClsid, out int plID)
-            => throw new NotImplementedException();
+        {
+            // Roslyn's workspace undo units do not have a registered Visual Studio undo type.
+            pClsid = Guid.Empty;
+            plID = 0;
+        }
 
         public void OnNextAdd()
         {
