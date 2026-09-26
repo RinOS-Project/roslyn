@@ -643,8 +643,16 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Extensions
                 Return ConvertSingleLineToMultiLineExecutableBlock(tree, executableBlock, statements, annotations)
             End If
 
-            ' TODO(cyrusn): Implement this.
-            Throw ExceptionUtilities.Unreachable
+            If Not executableBlock.IsMultiLineExecutableBlock() Then
+                Throw New ArgumentException("The node must be an executable block.", NameOf(executableBlock))
+            End If
+
+            Dim newBlock = executableBlock.ReplaceStatements(statements)
+            If annotations.Length > 0 Then
+                newBlock = newBlock.WithAdditionalAnnotations(annotations)
+            End If
+
+            Return tree.GetRoot().ReplaceNode(executableBlock, newBlock)
         End Function
 
         <Extension()>
