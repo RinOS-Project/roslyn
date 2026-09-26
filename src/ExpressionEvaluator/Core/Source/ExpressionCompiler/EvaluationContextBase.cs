@@ -101,35 +101,53 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         protected sealed class SimpleMessageDiagnostic : Diagnostic
         {
             private readonly string _message;
+            private readonly DiagnosticDescriptor _descriptor;
+            private readonly DiagnosticSeverity _severity;
+            private readonly Location _location;
+            private readonly bool _isSuppressed;
 
-            internal SimpleMessageDiagnostic(string message)
+            internal SimpleMessageDiagnostic(
+                string message,
+                DiagnosticSeverity severity = DiagnosticSeverity.Error,
+                Location? location = null,
+                bool isSuppressed = false)
             {
-                _message = message;
+                _message = message ?? throw new ArgumentNullException(nameof(message));
+                _descriptor = new DiagnosticDescriptor(
+                    id: "EE0001",
+                    title: "Expression evaluator diagnostic",
+                    messageFormat: message,
+                    category: "ExpressionEvaluator",
+                    defaultSeverity: DiagnosticSeverity.Error,
+                    isEnabledByDefault: true);
+                _severity = severity;
+                _location = location ?? Location.None;
+                _isSuppressed = isSuppressed;
             }
 
             public override IReadOnlyList<Location> AdditionalLocations
             {
-                get { throw new NotImplementedException(); }
+                get { return Array.Empty<Location>(); }
             }
 
             public override DiagnosticDescriptor Descriptor
             {
-                get { throw new NotImplementedException(); }
+                get { return _descriptor; }
             }
 
             public override string Id
             {
-                get { throw new NotImplementedException(); }
+                get { return _descriptor.Id; }
             }
 
             public override Location Location
             {
-                get { throw new NotImplementedException(); }
+                get { return _location; }
             }
 
             public override DiagnosticSeverity Severity
             {
-                get { return DiagnosticSeverity.Error; }
+                get { return _severity; }
             }
 
             public override DiagnosticSeverity DefaultSeverity
@@ -139,22 +157,26 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 
             public override bool IsSuppressed
             {
-                get { return false; }
+                get { return _isSuppressed; }
             }
 
             public override int WarningLevel
             {
-                get { throw new NotImplementedException(); }
+                get { return GetDefaultWarningLevel(_severity); }
             }
 
             public override bool Equals(Diagnostic? obj)
             {
-                throw new NotImplementedException();
+                return obj is SimpleMessageDiagnostic other &&
+                    _message == other._message &&
+                    _severity == other._severity &&
+                    _location == other._location &&
+                    _isSuppressed == other._isSuppressed;
             }
 
             public override int GetHashCode()
             {
-                throw new NotImplementedException();
+                return Hash.Combine(_message, Hash.Combine(_location, Hash.Combine((int)_severity, _isSuppressed ? 1 : 0)));
             }
 
             public override string GetMessage(IFormatProvider? formatProvider = null)
@@ -164,17 +186,28 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 
             internal override Diagnostic WithLocation(Location location)
             {
-                throw new NotImplementedException();
+                if (location is null)
+                {
+                    throw new ArgumentNullException(nameof(location));
+                }
+
+                return location == _location
+                    ? this
+                    : new SimpleMessageDiagnostic(_message, _severity, location, _isSuppressed);
             }
 
             internal override Diagnostic WithSeverity(DiagnosticSeverity severity)
             {
-                throw new NotImplementedException();
+                return severity == _severity
+                    ? this
+                    : new SimpleMessageDiagnostic(_message, severity, _location, _isSuppressed);
             }
 
             internal override Diagnostic WithIsSuppressed(bool isSuppressed)
             {
-                throw new NotImplementedException();
+                return isSuppressed == _isSuppressed
+                    ? this
+                    : new SimpleMessageDiagnostic(_message, _severity, _location, isSuppressed);
             }
         }
     }
