@@ -71,7 +71,12 @@ namespace Microsoft.DiaSymReader
             [Out] char* qualifiedName,
             int qualifiedNameBufferLength,
             [Out] int* qualifiedNameLength)
-            => throw new NotImplementedException();
+        {
+            // ISymWriterMetadataProvider exposes TypeDef and method information only.
+            // Keep the unsupported TypeRef path explicit so SymReader can use its
+            // normal E_NOTIMPL fallback instead of treating this as an EE crash.
+            return HResult.E_NOTIMPL;
+        }
 
         public override int GetNestedClassProps(int nestedClass, out int enclosingClass)
         {
