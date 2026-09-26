@@ -105,9 +105,26 @@ internal abstract partial class AbstractCodeCleanUpFixer(
             var attr = File.GetAttributes(path);
             if (attr.HasFlag(FileAttributes.Directory))
             {
-                // directory
-                // TODO: this one will be implemented later
-                // https://github.com/dotnet/roslyn/issues/30165
+                await TaskScheduler.Default;
+
+                var solution = _workspace.CurrentSolution;
+                var project = solution.GetProject(projectId);
+                if (project is null || !project.SupportsCompilation)
+                    return false;
+
+                var directoryPath = Path.GetFullPath(path);
+                var documents = project.Documents
+                    .Where(document => IsDocumentInDirectory(document, directoryPath))
+                    .ToImmutableArray();
+
+                if (documents.IsDefaultOrEmpty)
+                    return false;
+
+                return await FixAsync(
+                    _workspace,
+                    (progress, cancellationToken) => FixDocumentsAsync(
+                        solution, documents, context.EnabledFixIds, progress, cancellationToken),
+                    context).ConfigureAwait(false);
             }
             else
             {
@@ -134,6 +151,15 @@ internal abstract partial class AbstractCodeCleanUpFixer(
         }
 
         return false;
+    }
+
+    private static bool IsDocumentInDirectory(Document document, string directoryPath)
+    {
+        if (document.FilePath is not string filePath)
+            return false;
+
+        var directoryPrefix = directoryPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        return Path.GetFullPath(filePath).StartsWith(directoryPrefix, StringComparison.OrdinalIgnoreCase);
     }
 
     private Task<bool> FixTextBufferAsync(TextBufferCodeCleanUpScope textBufferScope, ICodeCleanUpExecutionContext context)
@@ -229,6 +255,34 @@ internal abstract partial class AbstractCodeCleanUpFixer(
                     }).ConfigureAwait(false);
             },
             args: (solution, enabledFixIds, progressTracker),
+            cancellationToken).ConfigureAwait(false);
+
+        return solution.WithDocumentSyntaxRoots(changedRoots);
+    }
+
+    private static async Task<Solution> FixDocumentsAsync(
+        Solution solution,
+        ImmutableArray<Document> documents,
+        FixIdContainer enabledFixIds,
+        IProgress<CodeAnalysisProgress> progressTracker,
+        CancellationToken cancellationToken)
+    {
+        progressTracker.AddItems(documents.Length);
+
+        var changedRoots = await ProducerConsumer<(DocumentId documentId, SyntaxNode newRoot)>.RunParallelAsync(
+            source: documents,
+            produceItems: static async (document, callback, args, cancellationToken) =>
+            {
+                var (enabledFixIds, progressTracker) = args;
+                using var _ = progressTracker.ItemCompletedScope();
+
+                var fixedDocument = await FixDocumentAsync(document, enabledFixIds, CodeAnalysisProgress.None, cancellationToken).ConfigureAwait(false);
+                if (fixedDocument == document)
+                    return;
+
+                callback((document.Id, await fixedDocument.GetRequiredSyntaxRootAsync(cancellationToken).ConfigureAwait(false)));
+            },
+            args: (enabledFixIds, progressTracker),
             cancellationToken).ConfigureAwait(false);
 
         return solution.WithDocumentSyntaxRoots(changedRoots);
