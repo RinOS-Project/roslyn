@@ -65,7 +65,30 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.GenerateType
         End Function
 
         Protected Overrides Function IsInValueTypeConstraintContext(semanticModel As SemanticModel, expression As Microsoft.CodeAnalysis.VisualBasic.Syntax.ExpressionSyntax, cancellationToken As System.Threading.CancellationToken) As Boolean
-            ' TODO(cyrusn) implement this
+            If TypeOf expression Is TypeSyntax AndAlso TypeOf expression.Parent Is TypeArgumentListSyntax Then
+                Dim typeSyntax = DirectCast(expression, TypeSyntax)
+                Dim typeArgumentList = DirectCast(expression.Parent, TypeArgumentListSyntax)
+                Dim symbol = semanticModel.GetSymbolInfo(typeArgumentList.Parent, cancellationToken).GetAnySymbol()
+                If symbol IsNot Nothing AndAlso symbol.IsConstructor() Then
+                    symbol = symbol.ContainingType
+                End If
+
+                Dim parameterIndex = typeArgumentList.Arguments.IndexOf(typeSyntax)
+                Dim namedType = TryCast(symbol, INamedTypeSymbol)
+                If namedType IsNot Nothing Then
+                    namedType = namedType.OriginalDefinition
+                    Dim typeParameter = If(parameterIndex < namedType.TypeParameters.Length, namedType.TypeParameters(parameterIndex), Nothing)
+                    Return typeParameter IsNot Nothing AndAlso typeParameter.HasValueTypeConstraint
+                End If
+
+                Dim method = TryCast(symbol, IMethodSymbol)
+                If method IsNot Nothing Then
+                    method = method.OriginalDefinition
+                    Dim typeParameter = If(parameterIndex < method.TypeParameters.Length, method.TypeParameters(parameterIndex), Nothing)
+                    Return typeParameter IsNot Nothing AndAlso typeParameter.HasValueTypeConstraint
+                End If
+            End If
+
             Return False
         End Function
 
