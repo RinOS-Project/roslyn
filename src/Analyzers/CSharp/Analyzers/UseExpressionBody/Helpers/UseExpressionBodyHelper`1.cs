@@ -391,5 +391,5 @@ internal abstract class UseExpressionBodyHelper<TDeclaration>(
     }
 
     protected virtual TDeclaration WithAccessorList(TDeclaration declaration, AccessorListSyntax accessorListSyntax)
-        => throw new NotImplementedException();
+        => throw ExceptionUtilities.Unreachable();
 }

@@ -5,6 +5,7 @@
 Imports System.Collections.Immutable
 Imports Microsoft.CodeAnalysis.Differencing
 Imports Microsoft.CodeAnalysis.VisualBasic.Syntax
+Imports Roslyn.Utilities
 
 Namespace Microsoft.CodeAnalysis.VisualBasic.EditAndContinue
 
@@ -301,7 +302,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.EditAndContinue
                     Return 0
             End Select
 
-            Throw New NotImplementedException()
+            Throw ExceptionUtilities.UnexpectedValue(label)
         End Function
 
         Friend Overrides Function Classify(kind As Integer, node As SyntaxNode, ByRef isLeaf As Boolean) As Integer

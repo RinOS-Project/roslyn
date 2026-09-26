@@ -16,9 +16,10 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.EmbeddedLanguages.VirtualChars
         End Sub
 
         Public Overrides Function TryGetEscapeCharacter(ch As VirtualChar, ByRef escapedChar As Char) As Boolean
-            ' Not needed yet for VB.  Implement when there is an appropriate consumer that needs
-            ' this.
-            Throw New NotImplementedException()
+            ' Visual Basic escapes quotes by doubling them rather than by using an escape
+            ' character.  There is no single-character escape mapping for this service.
+            escapedChar = Nothing
+            Return False
         End Function
 
         Protected Overrides ReadOnly Property SyntaxFacts As ISyntaxFacts
