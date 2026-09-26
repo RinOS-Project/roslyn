@@ -2426,7 +2426,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
 #endif
             )
         {
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         internal override SyntaxToken IdentifierToken
@@ -2446,27 +2446,27 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
 
         public override Symbol ContainingSymbol
         {
-            get { throw new NotImplementedException(); }
+            get { throw ExceptionUtilities.Unreachable(); }
         }
 
         public override TypeWithAnnotations TypeWithAnnotations
         {
-            get { throw new NotImplementedException(); }
+            get { throw ExceptionUtilities.Unreachable(); }
         }
 
         public override ImmutableArray<Location> Locations
         {
-            get { throw new NotImplementedException(); }
+            get { throw ExceptionUtilities.Unreachable(); }
         }
 
         public override ImmutableArray<SyntaxReference> DeclaringSyntaxReferences
         {
-            get { throw new NotImplementedException(); }
+            get { throw ExceptionUtilities.Unreachable(); }
         }
 
         internal override ConstantValue GetConstantValue(SyntaxNode node, LocalSymbol inProgress, BindingDiagnosticBag diagnostics)
         {
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         internal override bool IsCompilerGenerated
@@ -2476,12 +2476,12 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
 
         internal override ReadOnlyBindingDiagnostic<AssemblySymbol> GetConstantValueDiagnostics(BoundExpression boundInitValue)
         {
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         internal override SyntaxNode GetDeclaratorSyntax()
         {
-            throw new NotImplementedException();
+            throw ExceptionUtilities.Unreachable();
         }
 
         internal override bool HasSourceLocation => false;

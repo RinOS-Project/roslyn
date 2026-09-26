@@ -12,35 +12,45 @@ namespace Microsoft.VisualStudio.LanguageServices.CSharp.ProjectSystemShim;
 internal partial class CSharpProjectShim : ICSCompiler
 {
     public ICSSourceModule CreateSourceModule(ICSSourceText text)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("The Roslyn C# project shim does not expose legacy source modules.");
 
     public ICSNameTable GetNameTable()
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("The Roslyn C# project shim does not expose the legacy compiler name table.");
 
     public void Shutdown()
-        => throw new NotImplementedException();
+    {
+        // Project lifetime is owned by ICSharpProjectSite/Disconnect. There is no separate
+        // in-proc compiler state to release here.
+    }
 
     public ICSCompilerConfig GetConfiguration()
         => this;
 
     public ICSInputSet AddInputSet()
-        => throw new NotImplementedException();
+        => this;
 
     public void RemoveInputSet(ICSInputSet inputSet)
-        => throw new NotImplementedException();
+    {
+        if (!ReferenceEquals(inputSet, this))
+        {
+            throw new ArgumentException("The C# project shim only owns its project input set.", nameof(inputSet));
+        }
+    }
 
     public void Compile(ICSCompileProgress progress)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy in-proc C# compilation is not used; compilation is owned by the workspace build host.");
 
     public void BuildForEnc(ICSCompileProgress progress, ICSEncProjectServices encService, object pe)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy C# Edit-and-Continue compilation is not exposed by the project shim.");
 
     public object CreateParser()
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy C# parser objects are not exposed; use the Roslyn syntax APIs.");
 
     public object CreateLanguageAnalysisEngine()
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy C# language analysis engines are not exposed by the project shim.");
 
     public void ReleaseReservedMemory()
-        => throw new NotImplementedException();
+    {
+        // Roslyn's managed workspace/compiler path does not reserve native compiler memory.
+    }
 }

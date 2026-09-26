@@ -32,13 +32,15 @@ internal partial class CSharpProjectShim : ICSharpProjectSite
     }
 
     public bool CheckInputFileTimes(System.Runtime.InteropServices.ComTypes.FILETIME output)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy input timestamp checks are not used by the Roslyn workspace project system.");
 
     public void BuildProject(object progress)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy in-proc C# project builds are not used; build is owned by the workspace build host.");
 
     public void Unused()
-        => throw new NotImplementedException();
+    {
+        // Kept for ABI compatibility with the legacy project-system interface.
+    }
 
     public void OnSourceFileAdded(string filename)
     {
@@ -114,10 +116,10 @@ internal partial class CSharpProjectShim : ICSharpProjectSite
     }
 
     public void OnModuleAdded(string filename)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy C# module inputs are not represented by the Roslyn workspace project system.");
 
     public void OnModuleRemoved(string filename)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy C# module inputs are not represented by the Roslyn workspace project system.");
 
     public int GetValidStartupClasses(IntPtr[] classNames, ref int count)
     {

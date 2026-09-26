@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.LanguageServices.CSharp.ProjectSystemShim.Interop;
 using Roslyn.Utilities;
 
@@ -14,7 +15,7 @@ namespace Microsoft.VisualStudio.LanguageServices.CSharp.ProjectSystemShim;
 internal partial class CSharpProjectShim : ICSInputSet
 {
     public ICSCompiler GetCompiler()
-        => throw new NotImplementedException();
+        => this;
 
     public void AddSourceFile(string filename)
     {
@@ -27,13 +28,19 @@ internal partial class CSharpProjectShim : ICSInputSet
     }
 
     public void RemoveAllSourceFiles()
-        => throw new NotImplementedException();
+    {
+        var project = Workspace.CurrentSolution.GetRequiredProject(ProjectSystemProject.Id);
+        foreach (var filePath in project.Documents.Select(document => document.FilePath).Where(path => path is not null).ToArray())
+        {
+            RemoveFile(filePath!);
+        }
+    }
 
     public void AddResourceFile(string filename, string ident, bool embed, bool vis)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("C# resources are owned by the project-system build configuration.");
 
     public void RemoveResourceFile(string filename, string ident, bool embed, bool vis)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("C# resources are owned by the project-system build configuration.");
 
     public void SetWin32Resource(string filename)
     {
@@ -88,7 +95,7 @@ internal partial class CSharpProjectShim : ICSInputSet
     }
 
     public string GetWin32Resource()
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("C# Win32 resources are owned by the project-system build configuration.");
 
     public void SetWin32Manifest(string manifestFileName)
     {

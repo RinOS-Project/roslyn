@@ -4,6 +4,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using Roslyn.Utilities;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.CodeAnalysis.Shared.Collections;
@@ -20,7 +21,7 @@ internal static partial class IntervalTreeHelpers<T, TIntervalTree, TNode, TInte
         /// </summary>
         private readonly struct AlwaysThrowIntrospector : IIntervalIntrospector<T>
         {
-            public TextSpan GetSpan(T value) => throw new System.NotImplementedException();
+            public TextSpan GetSpan(T value) => throw ExceptionUtilities.Unreachable();
         }
 
         /// <summary>

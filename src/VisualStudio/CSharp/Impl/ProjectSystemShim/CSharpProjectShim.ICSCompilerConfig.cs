@@ -7,6 +7,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.LanguageServices.CSharp.ProjectSystemShim.Interop;
+using Roslyn.Utilities;
 
 namespace Microsoft.VisualStudio.LanguageServices.CSharp.ProjectSystemShim;
 
@@ -20,10 +21,10 @@ internal partial class CSharpProjectShim : ICSCompilerConfig
     }
 
     public void GetOptionInfoAt(int index, out CompilerOptions optionID, out string switchName, out string switchDescription, out uint flags)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy C# compiler option metadata is not exposed by the Roslyn project shim.");
 
     public void GetOptionInfoAtEx(int index, out CompilerOptions optionID, out string shortSwitchName, out string longSwitchName, out string descriptiveSwitchName, out string switchDescription, out uint flags)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy C# compiler option metadata is not exposed by the Roslyn project shim.");
 
     public void ResetAllOptions()
     {
@@ -75,5 +76,5 @@ internal partial class CSharpProjectShim : ICSCompilerConfig
     }
 
     public string GetWarnInfo(int warnIndex)
-        => throw new NotImplementedException();
+        => throw ExceptionUtilities.Unreachable();
 }

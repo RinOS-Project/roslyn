@@ -35,7 +35,7 @@ internal partial class CSharpProjectShim : ICSharpVenusProjectSite
     }
 
     public void OnDiskFileUpdated(string filename, ref System.Runtime.InteropServices.ComTypes.FILETIME pFT)
-        => throw new NotImplementedException();
+        => throw new NotSupportedException("Legacy Venus disk-file notifications are not used by the Roslyn workspace project system.");
 
     public void OnCodeDirectoryAliasesChanged(ICSharpProjectRoot project, int previousAliasesCount, string[] previousAliases, int currentAliasesCount, string[] currentAliases)
     {
