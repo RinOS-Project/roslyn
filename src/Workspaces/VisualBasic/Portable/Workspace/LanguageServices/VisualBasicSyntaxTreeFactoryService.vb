@@ -3,6 +3,7 @@
 ' See the LICENSE file in the project root for more information.
 
 Imports System.Composition
+Imports System.Linq
 Imports System.Text
 Imports System.Threading
 Imports Microsoft.CodeAnalysis.Host
@@ -39,7 +40,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
 
             Dim diagnostics As IEnumerable(Of Diagnostic) = Nothing
             Dim preprocessorSymbols = VisualBasicCommandLineParser.ParseConditionalCompilationSymbols(defineString, diagnostics)
-            If diagnostics Is Nothing Then
+            If diagnostics IsNot Nothing AndAlso diagnostics.Any() Then
                 Return Nothing
             End If
 
