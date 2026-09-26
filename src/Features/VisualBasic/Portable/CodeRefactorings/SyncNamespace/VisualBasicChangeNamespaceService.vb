@@ -4,7 +4,10 @@
 
 Imports System.Collections.Immutable
 Imports System.Composition
+Imports System.Diagnostics
+Imports System.Linq
 Imports System.Threading
+Imports System.Threading.Tasks
 Imports Microsoft.CodeAnalysis.ChangeNamespace
 Imports Microsoft.CodeAnalysis.Host.Mef
 Imports Microsoft.CodeAnalysis.LanguageService
@@ -66,29 +69,139 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ChangeNamespace
             Return True
         End Function
 
-        ' TODO: Implement the service for VB
-        Protected Overrides Function GetValidContainersFromAllLinkedDocumentsAsync(document As Document, container As SyntaxNode, cancellationToken As CancellationToken) As Task(Of ImmutableArray(Of (DocumentId, SyntaxNode)))
-            Return SpecializedTasks.Default(Of ImmutableArray(Of (DocumentId, SyntaxNode)))()
+        Protected Overrides Async Function GetValidContainersFromAllLinkedDocumentsAsync(document As Document, container As SyntaxNode, cancellationToken As CancellationToken) As Task(Of ImmutableArray(Of (DocumentId, SyntaxNode)))
+            If document.Project.Solution.WorkspaceKind = WorkspaceKind.MiscellaneousFiles OrElse document.IsGeneratedCode(cancellationToken) Then
+                Return Nothing
+            End If
+
+            Dim containerSpan As TextSpan
+            If TypeOf container Is NamespaceBlockSyntax Then
+                containerSpan = container.Span
+            ElseIf TypeOf container Is CompilationUnitSyntax Then
+                ' An empty span represents moving all global members into a namespace.
+                containerSpan = Nothing
+            Else
+                Throw ExceptionUtilities.Unreachable
+            End If
+
+            Dim allDocumentIds As ImmutableArray(Of DocumentId) = Nothing
+            If Not IsSupportedLinkedDocument(document, allDocumentIds) Then
+                Return Nothing
+            End If
+
+            Return Await TryGetApplicableContainersFromAllDocumentsAsync(
+                document.Project.Solution, allDocumentIds, containerSpan, cancellationToken).ConfigureAwait(False)
         End Function
 
-        ' This is only reachable when called from a VB service, which is not implemented yet.
         Protected Overrides Function ChangeNamespaceDeclaration(root As CompilationUnitSyntax, declaredNamespaceParts As ImmutableArray(Of String), targetNamespaceParts As ImmutableArray(Of String)) As CompilationUnitSyntax
+            Dim container = root.GetAnnotatedNodes(ContainerAnnotation).Single()
+
+            If TypeOf container Is CompilationUnitSyntax Then
+                Debug.Assert(IsGlobalNamespace(declaredNamespaceParts))
+
+                Dim namespaceName = CreateNamespaceAsQualifiedName(targetNamespaceParts, targetNamespaceParts.Length - 1).
+                    WithAdditionalAnnotations(WarningAnnotation)
+                Dim namespaceBlock = SyntaxFactory.NamespaceBlock(
+                    SyntaxFactory.NamespaceStatement(namespaceName), root.Members)
+
+                Return root.WithMembers(SyntaxFactory.SingletonList(Of StatementSyntax)(namespaceBlock)).
+                    WithoutAnnotations(ContainerAnnotation)
+            End If
+
+            If TypeOf container Is NamespaceBlockSyntax Then
+                Dim namespaceBlock = DirectCast(container, NamespaceBlockSyntax)
+
+                If IsGlobalNamespace(targetNamespaceParts) Then
+                    Return MoveMembersFromNamespaceToGlobal(root, namespaceBlock)
+                End If
+
+                Dim namespaceName = CreateNamespaceAsQualifiedName(targetNamespaceParts, targetNamespaceParts.Length - 1).
+                    WithTriviaFrom(namespaceBlock.NamespaceStatement.Name).
+                    WithAdditionalAnnotations(WarningAnnotation)
+                Dim changedNamespace = namespaceBlock.WithNamespaceStatement(
+                    namespaceBlock.NamespaceStatement.WithName(namespaceName)).
+                    WithoutAnnotations(ContainerAnnotation)
+
+                Return root.ReplaceNode(namespaceBlock, changedNamespace)
+            End If
+
             Throw ExceptionUtilities.Unreachable
         End Function
 
-        ' This is only reachable when called from a VB service, which is not implemented yet.
         Protected Overrides Function GetMemberDeclarationsInContainer(container As SyntaxNode) As SyntaxList(Of StatementSyntax)
+            If TypeOf container Is CompilationUnitSyntax Then
+                Return DirectCast(container, CompilationUnitSyntax).Members
+            End If
+
+            If TypeOf container Is NamespaceBlockSyntax Then
+                Return DirectCast(container, NamespaceBlockSyntax).Members
+            End If
+
             Throw ExceptionUtilities.Unreachable
         End Function
 
-        ' This is only reachable when called from a VB service, which is not implemented yet.
-        Protected Overrides Function TryGetApplicableContainerFromSpanAsync(document As Document, span As TextSpan, cancellationToken As CancellationToken) As Task(Of SyntaxNode)
-            Throw ExceptionUtilities.Unreachable
+        Protected Overrides Async Function TryGetApplicableContainerFromSpanAsync(document As Document, span As TextSpan, cancellationToken As CancellationToken) As Task(Of SyntaxNode)
+            Dim syntaxRoot = Await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(False)
+            Dim compilationUnit = DirectCast(syntaxRoot, CompilationUnitSyntax)
+            Dim container As SyntaxNode = Nothing
+
+            If span.IsEmpty Then
+                If compilationUnit.DescendantNodes().OfType(Of NamespaceBlockSyntax)().Any() Then
+                    Return Nothing
+                End If
+
+                container = compilationUnit
+            Else
+                If Not compilationUnit.Span.Contains(span) Then
+                    Return Nothing
+                End If
+
+                Dim node = compilationUnit.FindNode(span, getInnermostNodeForTie:=True)
+                Dim namespaceBlocks = node.AncestorsAndSelf().OfType(Of NamespaceBlockSyntax)().ToImmutableArray()
+                If namespaceBlocks.Length <> 1 Then
+                    Return Nothing
+                End If
+
+                Dim namespaceBlock = namespaceBlocks(0)
+                If namespaceBlock.NamespaceStatement.Name.GetDiagnostics().Any(
+                        Function(diagnostic) diagnostic.DefaultSeverity = DiagnosticSeverity.Error) Then
+                    Return Nothing
+                End If
+
+                If namespaceBlock.DescendantNodes().OfType(Of NamespaceBlockSyntax)().Any() Then
+                    Return Nothing
+                End If
+
+                container = namespaceBlock
+            End If
+
+            If Await ContainsPartialTypeWithMultipleDeclarationsAsync(document, container, cancellationToken).ConfigureAwait(False) Then
+                Return Nothing
+            End If
+
+            Return container
         End Function
 
-        ' This is only reachable when called from a VB service, which is not implemented yet.
         Protected Overrides Function GetDeclaredNamespace(container As SyntaxNode) As String
+            If TypeOf container Is CompilationUnitSyntax Then
+                Return String.Empty
+            End If
+
+            If TypeOf container Is NamespaceBlockSyntax Then
+                Return DirectCast(container, NamespaceBlockSyntax).NamespaceStatement.Name.ToString()
+            End If
+
             Throw ExceptionUtilities.Unreachable
+        End Function
+
+        Private Shared Function MoveMembersFromNamespaceToGlobal(root As CompilationUnitSyntax, namespaceBlock As NamespaceBlockSyntax) As CompilationUnitSyntax
+            Dim namespaceImports = namespaceBlock.Members.OfType(Of ImportsStatementSyntax)()
+            Dim members = SyntaxFactory.List(namespaceBlock.Members.Where(Function(member) Not TypeOf member Is ImportsStatementSyntax))
+            Dim rootImports = SyntaxFactory.List(root.Imports.Concat(namespaceImports))
+
+            Return root.WithImports(rootImports).
+                WithMembers(root.Members.ReplaceRange(namespaceBlock, members)).
+                WithoutAnnotations(ContainerAnnotation)
         End Function
 
         Private Shared Function CreateNamespaceAsQualifiedName(namespaceParts As ImmutableArray(Of String), index As Integer) As NameSyntax
