@@ -13,6 +13,9 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Formatting
 
             Private ReadOnly _formatter As VisualBasicTriviaFormatter
             Private ReadOnly _textChanges As IList(Of TextChange)
+            Private ReadOnly _token1 As SyntaxToken
+            Private ReadOnly _token2 As SyntaxToken
+            Private ReadOnly _originalString As String
 
             Public Sub New(context As FormattingContext,
                            formattingRules As ChainedFormattingRules,
@@ -28,6 +31,9 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Formatting
                 Contract.ThrowIfNull(formattingRules)
                 Contract.ThrowIfNull(originalString)
 
+                _token1 = token1
+                _token2 = token2
+                _originalString = originalString
                 Me.LineBreaks = Math.Max(0, lineBreaks)
                 Me.Spaces = Math.Max(0, spaces)
 
@@ -68,19 +74,27 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Formatting
                                         formattingResultApplier As Action(Of Integer, TokenStream, TriviaData),
                                         cancellationToken As CancellationToken,
                                         Optional tokenPairIndex As Integer = TokenPairIndexNotNeeded)
-                Throw New NotImplementedException()
+                formattingResultApplier(tokenPairIndex, context.TokenStream, Me)
             End Sub
 
             Public Overrides Function WithIndentation(indentation As Integer, context As FormattingContext, formattingRules As ChainedFormattingRules, cancellationToken As CancellationToken) As TriviaData
-                Throw New NotImplementedException()
+                Return Reformat(context, formattingRules, Me.LineBreaks, indentation, cancellationToken)
             End Function
 
             Public Overrides Function WithLine(line As Integer, indentation As Integer, context As FormattingContext, formattingRules As ChainedFormattingRules, cancellationToken As CancellationToken) As TriviaData
-                Throw New NotImplementedException()
+                Return Reformat(context, formattingRules, line, indentation, cancellationToken)
             End Function
 
             Public Overrides Function WithSpace(space As Integer, context As FormattingContext, formattingRules As ChainedFormattingRules) As TriviaData
-                Throw New NotImplementedException()
+                Return Reformat(context, formattingRules, Me.LineBreaks, space, CancellationToken.None)
+            End Function
+
+            Private Function Reformat(context As FormattingContext,
+                                      formattingRules As ChainedFormattingRules,
+                                      lineBreaks As Integer,
+                                      spaces As Integer,
+                                      cancellationToken As CancellationToken) As FormattedComplexTrivia
+                Return New FormattedComplexTrivia(context, formattingRules, _token1, _token2, lineBreaks, spaces, _originalString, cancellationToken)
             End Function
         End Class
     End Class

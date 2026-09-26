@@ -14,6 +14,9 @@ internal sealed partial class TriviaDataFactory
 {
     private sealed class FormattedComplexTrivia : TriviaDataWithList
     {
+        private readonly SyntaxToken _token1;
+        private readonly SyntaxToken _token2;
+        private readonly string _originalString;
         private readonly CSharpTriviaFormatter _formatter;
         private readonly IList<TextChange> _textChanges;
 
@@ -32,6 +35,9 @@ internal sealed partial class TriviaDataFactory
             Contract.ThrowIfNull(formattingRules);
             Contract.ThrowIfNull(originalString);
 
+            _token1 = token1;
+            _token2 = token2;
+            _originalString = originalString;
             this.LineBreaks = Math.Max(0, lineBreaks);
             this.Spaces = Math.Max(0, spaces);
 
@@ -61,15 +67,23 @@ internal sealed partial class TriviaDataFactory
             => _formatter.FormatToSyntaxTrivia(cancellationToken);
 
         public override TriviaData WithSpace(int space, FormattingContext context, ChainedFormattingRules formattingRules)
-            => throw new NotImplementedException();
+            => Reformat(context, formattingRules, this.LineBreaks, space, CancellationToken.None);
 
         public override TriviaData WithLine(int line, int indentation, FormattingContext context, ChainedFormattingRules formattingRules, CancellationToken cancellationToken)
-            => throw new NotImplementedException();
+            => Reformat(context, formattingRules, line, indentation, cancellationToken);
 
         public override TriviaData WithIndentation(int indentation, FormattingContext context, ChainedFormattingRules formattingRules, CancellationToken cancellationToken)
-            => throw new NotImplementedException();
+            => Reformat(context, formattingRules, this.LineBreaks, indentation, cancellationToken);
 
         public override void Format(FormattingContext context, ChainedFormattingRules formattingRules, Action<int, TokenStream, TriviaData> formattingResultApplier, CancellationToken cancellationToken, int tokenPairIndex = TokenPairIndexNotNeeded)
-            => throw new NotImplementedException();
+            => formattingResultApplier(tokenPairIndex, context.TokenStream, this);
+
+        private FormattedComplexTrivia Reformat(
+            FormattingContext context,
+            ChainedFormattingRules formattingRules,
+            int lineBreaks,
+            int spaces,
+            CancellationToken cancellationToken)
+            => new(context, formattingRules, _token1, _token2, lineBreaks, spaces, _originalString, cancellationToken);
     }
 }

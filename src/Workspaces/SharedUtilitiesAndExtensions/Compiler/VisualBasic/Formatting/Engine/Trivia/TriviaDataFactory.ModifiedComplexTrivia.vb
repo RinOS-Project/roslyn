@@ -2,6 +2,7 @@
 ' The .NET Foundation licenses this file to you under the MIT license.
 ' See the LICENSE file in the project root for more information.
 
+Imports System
 Imports System.Threading
 Imports Microsoft.CodeAnalysis.Formatting
 Imports Microsoft.CodeAnalysis.Text
@@ -87,11 +88,11 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Formatting
             End Sub
 
             Public Overrides Function GetTextChanges(span As TextSpan) As IEnumerable(Of TextChange)
-                Throw New NotImplementedException()
+                Return Array.Empty(Of TextChange)()
             End Function
 
             Public Overrides Function GetTriviaList(cancellationToken As CancellationToken) As SyntaxTriviaList
-                Throw New NotImplementedException()
+                Return Me._original.Token1.TrailingTrivia.AddRange(Me._original.Token2.LeadingTrivia)
             End Function
         End Class
     End Class

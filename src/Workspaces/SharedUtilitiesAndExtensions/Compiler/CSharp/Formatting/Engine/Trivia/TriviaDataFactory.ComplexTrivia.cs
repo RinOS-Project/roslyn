@@ -99,9 +99,9 @@ internal sealed partial class TriviaDataFactory
         }
 
         public override SyntaxTriviaList GetTriviaList(CancellationToken cancellationToken)
-            => throw new NotImplementedException();
+            => this.Token1.TrailingTrivia.AddRange(this.Token2.LeadingTrivia);
 
         public override IEnumerable<TextChange> GetTextChanges(TextSpan span)
-            => throw new NotImplementedException();
+            => Array.Empty<TextChange>();
     }
 }
