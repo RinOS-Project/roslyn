@@ -8,6 +8,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Roslyn.Utilities;
 
@@ -36,8 +37,24 @@ internal static partial class ITypeSymbolExtensions
 
         public override ITypeSymbol VisitFunctionPointerType(IFunctionPointerTypeSymbol symbol)
         {
-            // TODO(https://github.com/dotnet/roslyn/issues/43890): implement this
-            return symbol;
+            var returnType = symbol.Signature.ReturnType.Accept(this);
+            var parameterTypes = symbol.Signature.Parameters
+                .Select(parameter => parameter.Type.Accept(this))
+                .ToImmutableArray();
+
+            if (returnType.Equals(symbol.Signature.ReturnType) &&
+                parameterTypes.SequenceEqual(symbol.Signature.Parameters.Select(parameter => parameter.Type)))
+            {
+                return symbol;
+            }
+
+            return compilation.CreateFunctionPointerTypeSymbol(
+                returnType,
+                symbol.Signature.RefKind,
+                parameterTypes,
+                symbol.Signature.Parameters.Select(parameter => parameter.RefKind).ToImmutableArray(),
+                symbol.Signature.CallingConvention,
+                symbol.Signature.UnmanagedCallingConventionTypes);
         }
 
         public override ITypeSymbol VisitNamedType(INamedTypeSymbol symbol)
