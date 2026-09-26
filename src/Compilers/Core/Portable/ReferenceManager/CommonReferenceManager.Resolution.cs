@@ -882,8 +882,8 @@ namespace Microsoft.CodeAnalysis
 
             if (references.Length > 1)
             {
-                // TODO: implement
-                throw new NotSupportedException();
+                throw new NotSupportedException(
+                    "A single #r directive resolved to multiple metadata references, which this compilation contract cannot represent.");
             }
 
             return references[0];
