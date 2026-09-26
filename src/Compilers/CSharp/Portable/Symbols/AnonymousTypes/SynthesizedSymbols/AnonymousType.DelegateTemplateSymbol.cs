@@ -222,7 +222,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // AnonymousTypeOrDelegateComparer should not be calling this property for delegate
             // types since AnonymousTypeOrDelegateComparer is only used during emit and we
             // should only be emitting delegate types inferred from distinct locations in source.
-            internal override string TypeDescriptorKey => throw new System.NotImplementedException();
+            internal override string TypeDescriptorKey => throw ExceptionUtilities.Unreachable();
 
             public override TypeKind TypeKind => TypeKind.Delegate;
 
