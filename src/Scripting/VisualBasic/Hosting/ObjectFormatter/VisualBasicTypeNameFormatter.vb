@@ -3,6 +3,7 @@
 ' See the LICENSE file in the project root for more information.
 
 Imports Microsoft.CodeAnalysis.Scripting.Hosting
+Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 
 Namespace Microsoft.CodeAnalysis.VisualBasic.Scripting.Hosting
 
@@ -79,7 +80,10 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Scripting.Hosting
         End Property
 
         Public Overrides Function FormatTypeName(type As Type, options As CommonTypeNameFormatterOptions) As String
-            ' TODO (https://github.com/dotnet/roslyn/issues/3739): handle generated type names (e.g. state machines as in C#)
+            Dim stateMachineName As String = Nothing
+            If GeneratedNameParser.TryParseStateMachineTypeName(type.Name, stateMachineName) Then
+                Return stateMachineName
+            End If
 
             Return MyBase.FormatTypeName(type, options)
         End Function
