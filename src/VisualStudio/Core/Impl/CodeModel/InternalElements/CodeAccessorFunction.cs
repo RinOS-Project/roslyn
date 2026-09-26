@@ -96,12 +96,13 @@ public sealed partial class CodeAccessorFunction : AbstractCodeElement, EnvDTE.C
     {
         get
         {
-            throw new System.NotImplementedException();
+            var node = CodeModelService.GetNodeWithModifiers(LookupNode());
+            return CodeModelService.GetCanOverride(node);
         }
 
         set
         {
-            throw new System.NotImplementedException();
+            UpdateNode(FileCodeModel.UpdateCanOverride, value);
         }
     }
 
