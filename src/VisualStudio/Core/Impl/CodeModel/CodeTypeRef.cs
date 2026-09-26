@@ -138,7 +138,7 @@ public sealed class CodeTypeRef : AbstractCodeModelObject, EnvDTE.CodeTypeRef, E
 
         set
         {
-            throw new NotImplementedException();
+            throw Exceptions.ThrowENotImpl();
         }
     }
 

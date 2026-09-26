@@ -49,10 +49,7 @@ public sealed class ExternalCodeInterface : AbstractExternalCodeType, EnvDTE80.C
 
     public EnvDTE80.vsCMDataTypeKind DataTypeKind
     {
-        get
-        {
-            throw new NotImplementedException();
-        }
+        get { return EnvDTE80.vsCMDataTypeKind.vsCMDataTypeKindMain; }
 
         set
         {
@@ -62,7 +59,7 @@ public sealed class ExternalCodeInterface : AbstractExternalCodeType, EnvDTE80.C
 
     public bool IsGeneric
     {
-        get { throw new NotImplementedException(); }
+        get { return TypeSymbol is INamedTypeSymbol { IsGenericType: true }; }
     }
 
     public EnvDTE.CodeElements Parts

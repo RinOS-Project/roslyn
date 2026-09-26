@@ -9,6 +9,7 @@ using System.IO;
 using System.Threading;
 using Microsoft.CodeAnalysis.Internal.Log;
 using Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel.Interop;
+using Microsoft.VisualStudio.LanguageServices.Implementation.Utilities;
 
 namespace Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel.InternalElements;
 
@@ -24,12 +25,11 @@ public partial class CodeFunction
 
     public int SetXML(string bstrXML)
     {
-        // This doesn't need to be implemented since nothing in VS currently uses it.
-        throw new NotImplementedException();
+        throw Exceptions.ThrowENotImpl();
     }
 
     public int GetBodyPoint(out object ppUnk)
-        => throw new NotImplementedException();
+        => throw Exceptions.ThrowENotImpl();
 
     object IMethodXML2.GetXML()
         => new StringReader(GetXML());

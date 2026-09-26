@@ -97,7 +97,7 @@ public sealed class ExternalCodeClass : AbstractExternalCodeType, EnvDTE80.CodeC
 
         set
         {
-            throw new NotImplementedException();
+            throw Exceptions.ThrowEFail();
         }
     }
 

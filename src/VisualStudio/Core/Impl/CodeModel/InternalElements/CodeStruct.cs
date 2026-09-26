@@ -8,6 +8,7 @@ using System;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel.Collections;
 using Microsoft.VisualStudio.LanguageServices.Implementation.Interop;
+using Microsoft.VisualStudio.LanguageServices.Implementation.Utilities;
 
 namespace Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel.InternalElements;
 
@@ -73,8 +74,7 @@ public sealed class CodeStruct : AbstractCodeType, EnvDTE.CodeStruct, EnvDTE80.C
 
         set
         {
-            // TODO: Fix -- C# will actually allow the user to set an abstract modifier on a struct. VB throws E_NOTIMPL
-            throw new NotImplementedException();
+            throw Exceptions.ThrowENotImpl();
         }
     }
 

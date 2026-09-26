@@ -39,24 +39,21 @@ public sealed class ExternalCodeDelegate : AbstractExternalCodeType, EnvDTE80.Co
 
     public EnvDTE.CodeElements Parameters
     {
-        get { throw new NotImplementedException(); }
+        get { throw Exceptions.ThrowENotImpl(); }
     }
 
     public EnvDTE.CodeTypeRef Type
     {
-        get
-        {
-            throw new NotImplementedException();
-        }
+        get { throw Exceptions.ThrowENotImpl(); }
 
         set
         {
-            throw new NotImplementedException();
+            throw Exceptions.ThrowENotImpl();
         }
     }
 
     public bool IsGeneric
     {
-        get { throw new NotImplementedException(); }
+        get { return TypeSymbol is INamedTypeSymbol { IsGenericType: true }; }
     }
 }

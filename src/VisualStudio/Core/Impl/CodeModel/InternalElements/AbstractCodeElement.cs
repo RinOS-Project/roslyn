@@ -216,7 +216,7 @@ public abstract class AbstractCodeElement : AbstractCodeModelObject, ICodeElemen
 
     public string ExtenderCATID
     {
-        get { throw new NotImplementedException(); }
+        get { throw Exceptions.ThrowENotImpl(); }
     }
 
     protected virtual object GetExtenderNames()
@@ -235,7 +235,7 @@ public abstract class AbstractCodeElement : AbstractCodeModelObject, ICodeElemen
 
     public string ElementID
     {
-        get { throw new NotImplementedException(); }
+        get { throw Exceptions.ThrowENotImpl(); }
     }
 
     public virtual void RenameSymbol(string newName)

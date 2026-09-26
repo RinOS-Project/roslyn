@@ -33,7 +33,7 @@ public sealed class ExternalCodeEvent : AbstractExternalCodeMember, EnvDTE80.Cod
     }
 
     protected override EnvDTE.CodeElements GetParameters()
-        => throw new NotImplementedException();
+        => throw Exceptions.ThrowENotImpl();
 
     public override EnvDTE.vsCMElement Kind
     {

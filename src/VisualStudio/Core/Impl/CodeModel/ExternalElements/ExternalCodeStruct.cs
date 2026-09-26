@@ -59,7 +59,7 @@ public sealed class ExternalCodeStruct : AbstractExternalCodeType, EnvDTE80.Code
 
     public bool IsGeneric
     {
-        get { throw new NotImplementedException(); }
+        get { return TypeSymbol is INamedTypeSymbol { IsGenericType: true }; }
     }
 
     public EnvDTE.CodeElements Parts

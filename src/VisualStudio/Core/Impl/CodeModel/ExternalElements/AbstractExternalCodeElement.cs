@@ -130,8 +130,7 @@ public abstract class AbstractExternalCodeElement : AbstractCodeModelObject, ICo
 
         if (symbol is INamespaceSymbol { IsGlobalNamespace: true })
         {
-            // TODO: We should be returning the RootCodeModel object here.
-            throw new NotImplementedException();
+            throw Exceptions.ThrowENotImpl();
         }
 
         if (symbol.ContainingType != null)
@@ -166,7 +165,7 @@ public abstract class AbstractExternalCodeElement : AbstractCodeModelObject, ICo
 
     public virtual EnvDTE.CodeElements Children
     {
-        get { throw new NotImplementedException(); }
+        get { throw Exceptions.ThrowENotImpl(); }
     }
 
     EnvDTE.CodeElements ICodeElementContainer<AbstractExternalCodeElement>.GetCollection()
@@ -277,7 +276,7 @@ public abstract class AbstractExternalCodeElement : AbstractCodeModelObject, ICo
 
     public string ExtenderCATID
     {
-        get { throw new NotImplementedException(); }
+        get { throw Exceptions.ThrowENotImpl(); }
     }
 
     protected virtual object GetExtenderNames()
@@ -296,7 +295,7 @@ public abstract class AbstractExternalCodeElement : AbstractCodeModelObject, ICo
 
     public string ElementID
     {
-        get { throw new NotImplementedException(); }
+        get { throw Exceptions.ThrowENotImpl(); }
     }
 
 #pragma warning disable IDE0060 // Remove unused parameter - Implements interface methods for sub-types.

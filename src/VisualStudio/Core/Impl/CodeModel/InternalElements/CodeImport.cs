@@ -121,8 +121,7 @@ public sealed class CodeImport : AbstractCodeElement, EnvDTE80.CodeImport
 
         set
         {
-            // TODO: Implement
-            throw new NotImplementedException();
+            throw Exceptions.ThrowENotImpl();
         }
     }
 
@@ -135,8 +134,7 @@ public sealed class CodeImport : AbstractCodeElement, EnvDTE80.CodeImport
 
         set
         {
-            // TODO: Implement
-            throw new NotImplementedException();
+            throw Exceptions.ThrowENotImpl();
         }
     }
 

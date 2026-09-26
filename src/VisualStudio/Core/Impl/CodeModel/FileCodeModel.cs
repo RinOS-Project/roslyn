@@ -767,7 +767,7 @@ public sealed partial class FileCodeModel : AbstractCodeModelObject, EnvDTE.File
     }
 
     public EnvDTE.CodeElement ElementFromID(string id)
-        => throw new NotImplementedException();
+        => throw Exceptions.ThrowENotImpl();
 
     public EnvDTE80.vsCMParseStatus ParseStatus
     {
