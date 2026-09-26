@@ -58,15 +58,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Rename
         Public Overrides Sub VisitQueryExpression(node As QueryExpressionSyntax)
             Dim tokens As New List(Of SyntaxToken)
 
-            ' TODO: fully implement handling of all range vars incl. hiding rules.
-
             For Each clause In node.Clauses
-
-                Select Case clause.Kind
-                    Case SyntaxKind.FromClause
-                        tokens.AddRange(From variable In DirectCast(clause, FromClauseSyntax).Variables
-                                        Select variable.Identifier.Identifier)
-                End Select
+                AddQueryClauseIdentifiers(clause, tokens)
             Next
 
             _tracker.AddIdentifiers(tokens)
@@ -75,6 +68,84 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Rename
             Next
 
             _tracker.RemoveIdentifiers(tokens)
+        End Sub
+
+        Private Shared Sub AddQueryClauseIdentifiers(clause As QueryClauseSyntax, tokens As List(Of SyntaxToken))
+            Select Case clause.Kind
+                Case SyntaxKind.FromClause
+                    Dim fromClause = DirectCast(clause, FromClauseSyntax)
+                    For Each variable In fromClause.Variables
+                        tokens.Add(variable.Identifier.Identifier)
+                    Next
+
+                Case SyntaxKind.LetClause
+                    Dim letClause = DirectCast(clause, LetClauseSyntax)
+                    For Each variable In letClause.Variables
+                        AddExpressionRangeVariableIdentifier(variable, tokens)
+                    Next
+
+                Case SyntaxKind.AggregateClause
+                    Dim aggregateClause = DirectCast(clause, AggregateClauseSyntax)
+                    For Each variable In aggregateClause.Variables
+                        tokens.Add(variable.Identifier.Identifier)
+                    Next
+
+                    For Each variable In aggregateClause.AggregationVariables
+                        AddAggregationRangeVariableIdentifier(variable, tokens)
+                    Next
+
+                    For Each additionalClause In aggregateClause.AdditionalQueryOperators
+                        AddQueryClauseIdentifiers(additionalClause, tokens)
+                    Next
+
+                Case SyntaxKind.SimpleJoinClause, SyntaxKind.GroupJoinClause
+                    Dim joinClause = DirectCast(clause, JoinClauseSyntax)
+                    For Each variable In joinClause.JoinedVariables
+                        tokens.Add(variable.Identifier.Identifier)
+                    Next
+
+                    If clause.Kind = SyntaxKind.GroupJoinClause Then
+                        For Each variable In DirectCast(clause, GroupJoinClauseSyntax).AggregationVariables
+                            AddAggregationRangeVariableIdentifier(variable, tokens)
+                        Next
+                    End If
+
+                    For Each additionalJoin In joinClause.AdditionalJoins
+                        AddQueryClauseIdentifiers(additionalJoin, tokens)
+                    Next
+
+                Case SyntaxKind.GroupByClause
+                    Dim groupByClause = DirectCast(clause, GroupByClauseSyntax)
+                    For Each variable In groupByClause.Items
+                        AddExpressionRangeVariableIdentifier(variable, tokens)
+                    Next
+
+                    For Each variable In groupByClause.Keys
+                        AddExpressionRangeVariableIdentifier(variable, tokens)
+                    Next
+
+                    For Each variable In groupByClause.AggregationVariables
+                        AddAggregationRangeVariableIdentifier(variable, tokens)
+                    Next
+
+                Case SyntaxKind.SelectClause
+                    Dim selectClause = DirectCast(clause, SelectClauseSyntax)
+                    For Each variable In selectClause.Variables
+                        AddExpressionRangeVariableIdentifier(variable, tokens)
+                    Next
+            End Select
+        End Sub
+
+        Private Shared Sub AddExpressionRangeVariableIdentifier(variable As ExpressionRangeVariableSyntax, tokens As List(Of SyntaxToken))
+            If variable.NameEquals IsNot Nothing Then
+                tokens.Add(variable.NameEquals.Identifier.Identifier)
+            End If
+        End Sub
+
+        Private Shared Sub AddAggregationRangeVariableIdentifier(variable As AggregationRangeVariableSyntax, tokens As List(Of SyntaxToken))
+            If variable.NameEquals IsNot Nothing Then
+                tokens.Add(variable.NameEquals.Identifier.Identifier)
+            End If
         End Sub
 
         Private Sub VisitBlock(block As SyntaxList(Of StatementSyntax))
