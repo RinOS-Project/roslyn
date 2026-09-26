@@ -65,5 +65,17 @@ internal sealed class AdhocWorkspaceServices : HostWorkspaceServices
     public override bool IsSupported(string languageName) => languageName == RazorLanguage.Name;
 
     public override IEnumerable<TLanguageService> FindLanguageServices<TLanguageService>(MetadataFilter filter)
-        => throw new NotImplementedException();
+    {
+        // Explicit Razor services are already materialized by AdhocServices, so they do not
+        // carry MEF metadata. The fallback host remains responsible for metadata filtering.
+        foreach (var service in _languageServices.FindServices<TLanguageService>())
+        {
+            yield return service;
+        }
+
+        foreach (var service in _fallbackServices.FindLanguageServices<TLanguageService>(filter))
+        {
+            yield return service;
+        }
+    }
 }

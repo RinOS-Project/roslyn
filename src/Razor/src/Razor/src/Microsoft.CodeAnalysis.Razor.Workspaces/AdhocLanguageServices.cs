@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Host;
 
@@ -27,5 +28,16 @@ internal sealed class AdhocLanguageServices(
         }
 
         throw new InvalidOperationException(SR.FormatLanguage_Services_Missing_Service(typeof(TLanguageService).FullName));
+    }
+
+    public IEnumerable<TLanguageService> FindServices<TLanguageService>()
+    {
+        foreach (var service in languageServices)
+        {
+            if (service is TLanguageService languageService)
+            {
+                yield return languageService;
+            }
+        }
     }
 }

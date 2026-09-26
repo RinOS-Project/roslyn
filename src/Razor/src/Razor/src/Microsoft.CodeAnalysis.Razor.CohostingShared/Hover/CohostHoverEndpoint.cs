@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -93,8 +94,8 @@ internal sealed class CohostHoverEndpoint(
 
         var htmlStringResponse = htmlHover.Contents.Match(
             static s => s,
-            static markedString => null,
-            static stringOrMarkedStringArray => null,
+            static markedString => FormatMarkedString(markedString),
+            static stringOrMarkedStringArray => FormatMarkedStrings(stringOrMarkedStringArray),
             static markupContent => markupContent.Value
         );
 
@@ -123,8 +124,8 @@ internal sealed class CohostHoverEndpoint(
         {
             var razorStringResponse = razorHover.Contents.Match(
                 static s => s,
-                static markedString => throw new NotImplementedException(),
-                static stringOrMarkedStringArray => throw new NotImplementedException(),
+                static markedString => FormatMarkedString(markedString),
+                static stringOrMarkedStringArray => FormatMarkedStrings(stringOrMarkedStringArray),
                 static markupContent => markupContent.Value
             );
 
@@ -140,6 +141,20 @@ internal sealed class CohostHoverEndpoint(
 
         return razorHover;
     }
+
+    private static string FormatMarkedString(MarkedString markedString)
+        => string.IsNullOrEmpty(markedString.Language)
+            ? markedString.Value
+            : $"```{markedString.Language}\n{markedString.Value}\n```";
+
+    private static string? FormatMarkedStrings(SumType<string, MarkedString>[] markedStrings)
+        => markedStrings.Length == 0
+            ? null
+            : string.Join(
+                "\n\n",
+                markedStrings.Select(static markedString => markedString.Match(
+                    static text => text,
+                    static markedString => FormatMarkedString(markedString))));
 
     internal TestAccessor GetTestAccessor() => new(this);
 

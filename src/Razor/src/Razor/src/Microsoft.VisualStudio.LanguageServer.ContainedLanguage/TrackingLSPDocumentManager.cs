@@ -26,7 +26,9 @@ internal abstract class TrackingLSPDocumentManager : LSPDocumentManager
         int hostDocumentVersion,
         object? state) where TVirtualDocument : VirtualDocument
     {
-        // This is only virtual to prevent a binary breaking change. We don't expect anyone to call this method, without also implementing it
-        throw new NotImplementedException();
+        // This is only virtual to prevent a binary breaking change. The legacy overload cannot
+        // identify the virtual document URI, so an implementation must override it explicitly.
+        throw new NotSupportedException(
+            "The legacy UpdateVirtualDocument overload must be overridden by the document manager.");
     }
 }
