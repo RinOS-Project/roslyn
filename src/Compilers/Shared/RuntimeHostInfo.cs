@@ -79,12 +79,20 @@ namespace Microsoft.CodeAnalysis
         /// </summary>
         internal static string GetDotNetPathOrDefault()
         {
-            if (Environment.GetEnvironmentVariable(DotNetHostPathEnvironmentName) is { Length: > 0 } pathToDotNet)
+            // DOTNET_HOST_PATH is supplied by the SDK and must identify the host executable itself.
+            // A relative value such as "dotnet.exe" can be inherited from a launcher that only
+            // knows the command name. Treat that value as unset so a fully-qualified experimental
+            // host path or a PATH entry can still be selected. Passing the relative value through
+            // causes ToolTask to resolve the wrong host and makes the later DOTNET_ROOT calculation
+            // fail before the compiler is started.
+            if (Environment.GetEnvironmentVariable(DotNetHostPathEnvironmentName) is { Length: > 0 } pathToDotNet &&
+                Path.IsPathFullyQualified(pathToDotNet))
             {
                 return pathToDotNet;
             }
 
-            if (Environment.GetEnvironmentVariable(DotNetExperimentalHostPathEnvironmentName) is { Length: > 0 } pathToDotNetExperimental)
+            if (Environment.GetEnvironmentVariable(DotNetExperimentalHostPathEnvironmentName) is { Length: > 0 } pathToDotNetExperimental &&
+                Path.IsPathFullyQualified(pathToDotNetExperimental))
             {
                 return pathToDotNetExperimental;
             }

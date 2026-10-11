@@ -70,6 +70,62 @@ public sealed class RuntimeHostInfoTests(ITestOutputHelper output) : TestBase
         Assert.Null(result);
     }
 
+    [Fact]
+    public void RelativeHostPathFallsBackToExperimentalHostPath()
+    {
+        using var tempRoot = new TempRoot();
+        var experimentalDotNet = tempRoot.CreateDirectory("experimental-dotnet")
+            .CreateFile($"dotnet{PlatformInformation.ExeExtension}");
+
+        var result = ApplyEnvironmentVariables(
+            [
+                new("PATH", ""),
+                new(RuntimeHostInfo.DotNetHostPathEnvironmentName, $"dotnet{PlatformInformation.ExeExtension}"),
+                new(RuntimeHostInfo.DotNetExperimentalHostPathEnvironmentName, experimentalDotNet.Path),
+            ],
+            RuntimeHostInfo.GetDotNetPathOrDefault);
+
+        Assert.Equal(experimentalDotNet.Path, result);
+    }
+
+    [Fact]
+    public void RelativeHostPathsFallBackToPath()
+    {
+        using var tempRoot = new TempRoot();
+        var pathDotNetDirectory = tempRoot.CreateDirectory("path-dotnet");
+        var pathDotNet = pathDotNetDirectory.CreateFile($"dotnet{PlatformInformation.ExeExtension}");
+
+        var result = ApplyEnvironmentVariables(
+            [
+                new("PATH", pathDotNetDirectory.Path),
+                new(RuntimeHostInfo.DotNetHostPathEnvironmentName, $"dotnet{PlatformInformation.ExeExtension}"),
+                new(RuntimeHostInfo.DotNetExperimentalHostPathEnvironmentName, "dotnet"),
+            ],
+            RuntimeHostInfo.GetDotNetPathOrDefault);
+
+        Assert.Equal(pathDotNet.Path, result);
+    }
+
+    [Fact]
+    public void FullyQualifiedHostPathRemainsPreferred()
+    {
+        using var tempRoot = new TempRoot();
+        var hostDotNet = tempRoot.CreateDirectory("host-dotnet")
+            .CreateFile($"dotnet{PlatformInformation.ExeExtension}");
+        var experimentalDotNet = tempRoot.CreateDirectory("experimental-dotnet")
+            .CreateFile($"dotnet{PlatformInformation.ExeExtension}");
+
+        var result = ApplyEnvironmentVariables(
+            [
+                new("PATH", ""),
+                new(RuntimeHostInfo.DotNetHostPathEnvironmentName, hostDotNet.Path),
+                new(RuntimeHostInfo.DotNetExperimentalHostPathEnvironmentName, experimentalDotNet.Path),
+            ],
+            RuntimeHostInfo.GetDotNetPathOrDefault);
+
+        Assert.Equal(hostDotNet.Path, result);
+    }
+
     [Fact, WorkItem("https://github.com/dotnet/msbuild/issues/12669")]
     public void DotNetInPath_Symlinked()
     {
