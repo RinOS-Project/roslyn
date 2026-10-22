@@ -86,13 +86,13 @@ namespace Microsoft.CodeAnalysis
             // causes ToolTask to resolve the wrong host and makes the later DOTNET_ROOT calculation
             // fail before the compiler is started.
             if (Environment.GetEnvironmentVariable(DotNetHostPathEnvironmentName) is { Length: > 0 } pathToDotNet &&
-                Path.IsPathFullyQualified(pathToDotNet))
+                IsPathFullyQualified(pathToDotNet))
             {
                 return pathToDotNet;
             }
 
             if (Environment.GetEnvironmentVariable(DotNetExperimentalHostPathEnvironmentName) is { Length: > 0 } pathToDotNetExperimental &&
-                Path.IsPathFullyQualified(pathToDotNetExperimental))
+                IsPathFullyQualified(pathToDotNetExperimental))
             {
                 return pathToDotNetExperimental;
             }
@@ -119,6 +119,27 @@ namespace Microsoft.CodeAnalysis
             }
 
             return fileName;
+        }
+
+        private static bool IsPathFullyQualified(string path)
+        {
+#if NET
+            return Path.IsPathFullyQualified(path);
+#else
+            if (!Path.IsPathRooted(path) || string.IsNullOrEmpty(Path.GetPathRoot(path)))
+            {
+                return false;
+            }
+
+            var root = Path.GetPathRoot(path)!;
+            if (Path.DirectorySeparatorChar != '\\')
+            {
+                return root == Path.DirectorySeparatorChar.ToString();
+            }
+
+            return root.StartsWith(@"\\\\", StringComparison.Ordinal) ||
+                (root.Length >= 3 && root[1] == ':' && (root[2] == '\\' || root[2] == '/'));
+#endif
         }
 
         internal static string GetDotNetExecCommandLine(string toolFilePath, string commandLineArguments) =>
