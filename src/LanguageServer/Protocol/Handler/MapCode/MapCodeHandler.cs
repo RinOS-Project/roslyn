@@ -497,7 +497,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                 if (candidates.Length == 1)
                     return candidates[0];
 
-                if (candidates.Length == 0 && currentSolution.ProjectIds.Length == 1)
+                if (candidates.Length == 0 && currentSolution.ProjectIds.Count == 1)
                     return currentSolution.GetRequiredProject(currentSolution.ProjectIds[0]);
 
                 throw new NotSupportedException(
@@ -523,7 +523,7 @@ internal sealed class MapCodeHandler : ILspServiceRequestHandler<VSInternalMapCo
                 if (projectDirectory is null || documentDirectory is null || !IsPathUnderDirectory(filePath, projectDirectory))
                     return [];
 
-                var relativeDirectory = Path.GetRelativePath(projectDirectory, documentDirectory);
+                var relativeDirectory = PathUtilities.GetRelativePath(projectDirectory, documentDirectory);
                 return relativeDirectory == "."
                     ? []
                     : relativeDirectory.Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
