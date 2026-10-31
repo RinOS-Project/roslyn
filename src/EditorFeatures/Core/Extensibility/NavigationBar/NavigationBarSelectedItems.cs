@@ -36,7 +36,10 @@ internal sealed class NavigationBarSelectedTypeAndMember(
            Equals(this.MemberItem, other.MemberItem);
 
     public override int GetHashCode()
-        => Hash.Combine(ShowMemberItemGrayed,
-            Hash.Combine(MemberItem,
-                Hash.Combine(ShowTypeItemGrayed, TypeItem)));
+    {
+        var hashCode = Hash.Combine(TypeItem, 0);
+        hashCode = Hash.Combine(ShowTypeItemGrayed, hashCode);
+        hashCode = Hash.Combine(MemberItem, hashCode);
+        return Hash.Combine(ShowMemberItemGrayed, hashCode);
+    }
 }
