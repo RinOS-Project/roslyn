@@ -41,6 +41,6 @@ internal sealed class ProjectCone : IEquatable<ProjectCone>
         foreach (var projectId in ProjectIds)
             projectIdsHash ^= projectId.GetHashCode();
 
-        return Hash.Combine(RootProjectId, projectIdsHash);
+        return unchecked((RootProjectId.GetHashCode() * 31) ^ projectIdsHash);
     }
 }

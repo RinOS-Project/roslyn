@@ -17,7 +17,8 @@ namespace Microsoft.CodeAnalysis
                 ReportDiagnostic.Info => "suggestion",
                 ReportDiagnostic.Hidden => "silent",
                 ReportDiagnostic.Suppress => "none",
-                _ => throw Roslyn.Utilities.ExceptionUtilities.UnexpectedValue(reportDiagnostic),
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(reportDiagnostic), reportDiagnostic, "Unknown report diagnostic value."),
             };
         }
 

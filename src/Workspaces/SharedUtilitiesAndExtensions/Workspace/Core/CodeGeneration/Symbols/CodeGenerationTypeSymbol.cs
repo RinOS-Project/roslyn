@@ -59,16 +59,20 @@ internal abstract class CodeGenerationTypeSymbol(
     public ISymbol FindImplementationForInterfaceMember(ISymbol interfaceMember) => null;
 
     public string ToDisplayString(NullableFlowState topLevelNullability, SymbolDisplayFormat format = null)
-        => SymbolDisplay.ToDisplayString(this, topLevelNullability, format);
+        => throw new NotSupportedException(
+            "Code-generation-agnostic symbols require a language-specific display service.");
 
     public ImmutableArray<SymbolDisplayPart> ToDisplayParts(NullableFlowState topLevelNullability, SymbolDisplayFormat format = null)
-        => SymbolDisplay.ToDisplayParts(this, topLevelNullability, format);
+        => throw new NotSupportedException(
+            "Code-generation-agnostic symbols require a language-specific display service.");
 
     public string ToMinimalDisplayString(SemanticModel semanticModel, NullableFlowState topLevelNullability, int position, SymbolDisplayFormat format = null)
-        => SymbolDisplay.ToMinimalDisplayString(this, topLevelNullability, semanticModel, position, format);
+        => throw new NotSupportedException(
+            "Code-generation-agnostic symbols require a language-specific display service.");
 
     public ImmutableArray<SymbolDisplayPart> ToMinimalDisplayParts(SemanticModel semanticModel, NullableFlowState topLevelNullability, int position, SymbolDisplayFormat format = null)
-        => SymbolDisplay.ToMinimalDisplayParts(this, topLevelNullability, semanticModel, position, format);
+        => throw new NotSupportedException(
+            "Code-generation-agnostic symbols require a language-specific display service.");
 
     public override bool IsNamespace => false;
 

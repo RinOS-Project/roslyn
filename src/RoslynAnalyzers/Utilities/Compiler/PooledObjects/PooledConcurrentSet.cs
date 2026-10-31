@@ -100,7 +100,10 @@ namespace Analyzer.Utilities.PooledObjects
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            ArgumentNullException.ThrowIfNull(array);
+            if (array is null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
 
             if ((uint)arrayIndex > (uint)array.Length)
             {

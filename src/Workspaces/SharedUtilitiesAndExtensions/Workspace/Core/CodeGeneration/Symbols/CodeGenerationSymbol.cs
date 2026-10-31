@@ -196,16 +196,20 @@ internal abstract class CodeGenerationSymbol : ISymbol
     }
 
     public string ToDisplayString(SymbolDisplayFormat format = null)
-        => SymbolDisplay.ToDisplayString(this, format);
+        => throw new NotSupportedException(
+            "Code-generation-agnostic symbols require a language-specific display service.");
 
     public ImmutableArray<SymbolDisplayPart> ToDisplayParts(SymbolDisplayFormat format = null)
-        => SymbolDisplay.ToDisplayParts(this, format);
+        => throw new NotSupportedException(
+            "Code-generation-agnostic symbols require a language-specific display service.");
 
     public string ToMinimalDisplayString(SemanticModel semanticModel, int position, SymbolDisplayFormat format = null)
-        => SymbolDisplay.ToMinimalDisplayString(this, semanticModel, position, format);
+        => throw new NotSupportedException(
+            "Code-generation-agnostic symbols require a language-specific display service.");
 
     public ImmutableArray<SymbolDisplayPart> ToMinimalDisplayParts(SemanticModel semanticModel, int position, SymbolDisplayFormat format = null)
-        => SymbolDisplay.ToMinimalDisplayParts(this, semanticModel, position, format);
+        => throw new NotSupportedException(
+            "Code-generation-agnostic symbols require a language-specific display service.");
 
     public virtual string MetadataName
     {

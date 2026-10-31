@@ -27,6 +27,15 @@
     <Compile Include="..\..\..\..\..\Compilers\VisualBasic\Portable\Syntax\SyntaxKindFacts.vb">
       <Link>Compiler\Syntax\SyntaxKindFacts.vb</Link>
     </Compile>
+    <Compile Include="..\..\..\..\..\Compilers\VisualBasic\Portable\Symbols\SynthesizedSymbols\GeneratedNameConstants.vb">
+      <Link>Compiler\Symbols\SynthesizedSymbols\GeneratedNameConstants.vb</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\Compilers\VisualBasic\Portable\Symbols\SynthesizedSymbols\GeneratedNameKind.vb">
+      <Link>Compiler\Symbols\SynthesizedSymbols\GeneratedNameKind.vb</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\Compilers\VisualBasic\Portable\Symbols\SynthesizedSymbols\GeneratedNameParser.vb">
+      <Link>Compiler\Symbols\SynthesizedSymbols\GeneratedNameParser.vb</Link>
+    </Compile>
     <Compile Include="..\Generated\Syntax.xml.GetText.Generated.vb">
       <Link>Generated\Syntax.xml.GetText.Generated.vb</Link>
     </Compile>
