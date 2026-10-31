@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.VisualStudio.LanguageServices.CSharp.ProjectSystemShim.Interop;
 using Roslyn.Utilities;
 
